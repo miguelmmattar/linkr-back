@@ -3,6 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 
 import authRouter from "./routers/Auth.routes.js";
+import postsRouter from "./routers/Posts.routes.js";
 
 dotenv.config();
 
@@ -12,6 +13,7 @@ server.use(cors());
 server.use(express.json());
 
 server.use(authRouter);
+server.use(postsRouter);
 
 server.get("/", (req, res) => {
     return res.sendStatus(200);
