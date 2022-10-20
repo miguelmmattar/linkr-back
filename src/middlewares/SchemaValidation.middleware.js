@@ -1,4 +1,4 @@
-import  database  from "../database/Postgres.js";
+import connection from "../database/Postgres.js";
 import { schemas_configuration } from "../enums/SchemaConfiguration.js";
 import { STATUS_CODE } from "../enums/statusCode.js";
 import { schemas } from "../schemas/schemas.js";
@@ -28,7 +28,7 @@ async function schemaValidation(request, response, next) {
     if (schema_config.uniques !== undefined) {
       for (let i = 0, len = schema_config.uniques.length; i < len; i++) {
         const config = schema_config.uniques[i];
-        const query = await database.query(
+        const query = await connection.query(
           `SELECT "${config.property}" FROM ${config.table} WHERE "${config.property}"=$1`,
           [value[config.property]]
         );

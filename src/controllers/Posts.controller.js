@@ -4,10 +4,10 @@ import urlMetadata from "url-metadata";
 
 const postUrl = async (req, res) => {
     const { url, description } = req.body;
-    const { id } = res.locals.user;
+    const { userId } = res.locals;
 
     try {
-        await postsRepository.postUrl(url, description, id);
+        await postsRepository.postUrl(url, description, userId);
 
         res.sendStatus(201);
     } catch(error) {
