@@ -23,12 +23,3 @@ const getUrl = async (req, res) => {
         return res.status(500).send(error.message);
     }
 }
-
-
-
-/* post_scheema: Joi.object({
-    url: Joi.string().uri().required(),
-    decription: Joi.string()
-})
-    .unknown(false)
-    .required() */

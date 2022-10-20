@@ -8,9 +8,19 @@ const postUrl = (url, description, user) => {
 
 const getPosts = () => {
     return connection.query(`
-        SELECT url, description, "userId", "createdAt" FROM posts
-            ORDER BY "createdAt" DESC
-            LIMIT 20;
+        SELECT 
+            url,
+            description,
+            json_buid_object('name', users.name, 'picture', "userPicture".url) AS user,
+            "createdAt"
+        FROM 
+            posts
+        JOIN users
+            ON users.id = posts."userId"
+        JOIN "userPicture"
+            ON users.id = "userPictures".userId
+        ORDER BY "createdAt" DESC
+        LIMIT 20;
     `);
 }
 
