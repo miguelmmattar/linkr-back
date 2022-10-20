@@ -9,4 +9,11 @@ function insertLike({ postId, userId }) {
   );
 }
 
+function deleteLike({ postId, userId }) {
+  return connection.query(
+    `DELETE FROM ${TABLE} WHERE "postId"=$1 AND "userId"=$2`,
+    [postId, userId]
+  );
+}
+
 export { insertLike };
