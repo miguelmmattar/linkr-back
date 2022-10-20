@@ -4,8 +4,10 @@ import { HTMLSanitizer } from "../middlewares/HTMLSanitizer.middleware.js";
 
 const router = express.Router();
 
-router.post("/sign-up", HTMLSanitizer, authController.signup);
-// router.post("/signin", authController.login);
+router.use(HTMLSanitizer);
+
+router.post("/sign-up", authController.signUp);
+router.post("/sign-in", authController.signIn);
 // router.delete("/logout", authController.logout);
 
 export default router;

@@ -12,13 +12,18 @@ const newUserSchema = joi.object({
     confirmPassword: joi.string().trim().required()
 });
 
-const signup = async (req, res) => {
-    if(!res.locals.body) {
+const userSchema = joi.object({
+    email: joi.string().email().trim().required(),
+    password: joi.string().trim().required(),
+});
+
+const signUp = async (req, res) => {
+    if (!res.locals.body) {
         return res.sendStatus(STATUS_CODE.BAD_REQUEST)
     }
     const { name, email, password, confirmPassword } = res.locals.body;
     const hashPassword = bcrypt.hashSync(password, 10);
-    
+
     if (password !== confirmPassword) {
         return res.sendStatus(STATUS_CODE.UNPROCESSABLE_ENTITY);
     }
@@ -33,7 +38,7 @@ const signup = async (req, res) => {
     let emailAlreadyRegistered;
 
     try {
-        emailAlreadyRegistered = await connection.query(`SELECT * FROM users WHERE email = $1;`, [email]);
+        emailAlreadyRegistered = await authRepository.getUserByEmail({ email });
     } catch (error) {
         console.log(error);
         return res.sendStatus(STATUS_CODE.SERVER_ERROR);
@@ -52,6 +57,40 @@ const signup = async (req, res) => {
     }
 
     return res.sendStatus(STATUS_CODE.CREATED);
-}
+};
 
-export { signup }; 
+const signIn = async (req, res) => {
+    if (!res.locals.body) {
+        return res.sendStatus(STATUS_CODE.BAD_REQUEST)
+    }
+    const { email, password } = res.locals.body;
+    let existentUser;
+
+    // colocar no middleware de schemas 
+    const validation = userSchema.validate({ email, password }, { abortEarly: false });
+
+    if (validation.error) {
+        return res.status(STATUS_CODE.UNPROCESSABLE_ENTITY).send(validation.error.message);
+    }
+
+    //===========================================
+
+
+    try {
+        existentUser = await authRepository.getUserByEmail({ email });
+    } catch (error) {
+        console.log(error);
+        return res.sendStatus(STATUS_CODE.SERVER_ERROR);
+    }
+
+    if (existentUser.rowCount === 0) {
+        return res.sendStatus(STATUS_CODE.UNAUTHORIZED);
+    }
+
+
+
+
+    res.sendStatus(STATUS_CODE.OK);
+};
+
+export { signUp, signIn }; 
