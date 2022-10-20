@@ -1,5 +1,5 @@
-import  database  from "../database/database.js";
-import { schemas_configuration } from "../enums/schema_configuration.js";
+import  database  from "../database/Postgres.js";
+import { schemas_configuration } from "../enums/SchemaConfiguration.js";
 import { STATUS_CODE } from "../enums/statusCode.js";
 import { schemas } from "../schemas/schemas.js";
 

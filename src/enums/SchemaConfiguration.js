@@ -61,6 +61,12 @@ const schemas_configuration = Object.freeze([
       },
     ],
   },
+  {
+    path: "/posts",
+    method: "POST",
+    schema_name: "postSchema",
+    request_data: "body",
+  },
 ]);
 
 export { schemas_configuration };
