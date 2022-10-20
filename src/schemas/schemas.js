@@ -4,7 +4,7 @@ import { joiPasswordExtendCore } from "joi-password";
 const JoiPassword = Joi.extend(joiPasswordExtendCore);
 
 const schemas = {
-  userSchema: Joi.object({
+  newUserSchema: Joi.object({
     name: Joi.string().min(1).required(),
     email: Joi.string().min(1).email().required(),
     password: JoiPassword.string()
@@ -18,7 +18,7 @@ const schemas = {
     confirmPassword: Joi.ref("password"),
   }).unknown(false),
 
-  signinSchema: Joi.object({
+  signInSchema: Joi.object({
     email: Joi.string().min(1).email().required(),
     password: JoiPassword.string()
       .min(8)

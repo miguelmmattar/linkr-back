@@ -12,17 +12,14 @@ const newUserSchema = joi.object({
     confirmPassword: joi.string().trim().required()
 });
 
-const userSchema = joi.object({
+const signInSchema = joi.object({
     email: joi.string().email().trim().required(),
     password: joi.string().trim().required(),
 });
 
 const signUp = async (req, res) => {
-    if (!res.locals.body) {
-        return res.sendStatus(STATUS_CODE.BAD_REQUEST)
-    }
+    if (!res.locals.body) return res.sendStatus(STATUS_CODE.BAD_REQUEST)
     const { name, email, password, confirmPassword } = res.locals.body;
-    const hashPassword = bcrypt.hashSync(password, 10);
 
     if (password !== confirmPassword) {
         return res.sendStatus(STATUS_CODE.UNPROCESSABLE_ENTITY);
@@ -35,6 +32,7 @@ const signUp = async (req, res) => {
         return res.status(STATUS_CODE.UNPROCESSABLE_ENTITY).send(validation.error.message);
     }
     // colocar no unique do middleware de schemas
+
     let emailAlreadyRegistered;
 
     try {
@@ -49,6 +47,8 @@ const signUp = async (req, res) => {
     }
     //===========================================
 
+    const hashPassword = bcrypt.hashSync(password, 10);
+
     try {
         await authRepository.insertUser({ name, email, hashPassword });
     } catch (error) {
@@ -59,15 +59,16 @@ const signUp = async (req, res) => {
     return res.sendStatus(STATUS_CODE.CREATED);
 };
 
+
+
+
 const signIn = async (req, res) => {
-    if (!res.locals.body) {
-        return res.sendStatus(STATUS_CODE.BAD_REQUEST)
-    }
+    if (!res.locals.body) return res.sendStatus(STATUS_CODE.BAD_REQUEST)
     const { email, password } = res.locals.body;
     let existentUser;
 
     // colocar no middleware de schemas 
-    const validation = userSchema.validate({ email, password }, { abortEarly: false });
+    const validation = signInSchema.validate({ email, password }, { abortEarly: false });
 
     if (validation.error) {
         return res.status(STATUS_CODE.UNPROCESSABLE_ENTITY).send(validation.error.message);
@@ -87,10 +88,13 @@ const signIn = async (req, res) => {
         return res.sendStatus(STATUS_CODE.UNAUTHORIZED);
     }
 
+    if (!await bcrypt.compare(password, existentUser.rows[0].password)) {
+        return res.sendStatus(STATUS_CODE.UNAUTHORIZED);
+    }
 
 
 
-    res.sendStatus(STATUS_CODE.OK);
+    return res.sendStatus(STATUS_CODE.OK);
 };
 
-export { signUp, signIn }; 
+export { signUp, signIn };
