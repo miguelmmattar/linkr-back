@@ -61,6 +61,28 @@ const schemas_configuration = Object.freeze([
       },
     ],
   },
+  {
+    path: "/sign-in",
+    method: "POST",
+    schema_name: "signInSchema",
+    request_data: "body",
+  },
+  {
+    path: "/sign-up",
+    method: "POST",
+    schema_name: "newUserSchema",
+    request_data: "body",
+    uniques: [
+      {
+        property: "email",
+        table: "users",
+        must_not_exist: true, 
+        must_not_exist_status_code: STATUS_CODE.CONFLICT,
+        error_details: true
+      },
+    ],
+  },
+  
 ]);
 
 export { schemas_configuration };
