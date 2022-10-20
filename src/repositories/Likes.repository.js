@@ -16,4 +16,4 @@ function deleteLike({ postId, userId }) {
   );
 }
 
-export { insertLike };
+export { insertLike, deleteLike };

@@ -11,5 +11,6 @@ router.use(authorization);
 
 router.post("/posts", schemaValidation, postsController.postUrl);
 router.get("/posts", postsController.getPosts);
+router.delete("/posts", schemaValidation, postsController.deletePosts);
 
-export default router; 
+export default router;

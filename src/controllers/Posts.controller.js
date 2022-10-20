@@ -71,4 +71,4 @@ const getMetadatas = async (result) => {
   }
 };
 
-export { postUrl, getPosts };
+export { postUrl, getPosts, getMetadatas };
