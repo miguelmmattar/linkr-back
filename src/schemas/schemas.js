@@ -15,14 +15,7 @@ const schemas = {
       .minOfNumeric(1)
       .noWhiteSpaces()
       .required(),
-    confirmPassword: JoiPassword.string()
-      .min(8)
-      .minOfSpecialCharacters(1)
-      .minOfLowercase(1)
-      .minOfUppercase(1)
-      .minOfNumeric(1)
-      .noWhiteSpaces()
-      .required(),
+    userPicture: Joi.string().uri().required()
   }).unknown(false),
 
   signInSchema: Joi.object({

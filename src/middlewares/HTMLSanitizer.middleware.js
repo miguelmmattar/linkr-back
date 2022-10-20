@@ -10,7 +10,7 @@ const propertiesToSanitize = [
   "name",
   "email",
   "password",
-  "confirmPassword",
+  "userPicture",
   "authorization"
 ];
 
