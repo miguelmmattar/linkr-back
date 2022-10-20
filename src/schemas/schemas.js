@@ -39,6 +39,11 @@ const schemas = {
   urlSchema: Joi.object({
     url: Joi.string().uri().required(),
   }),
+
+  postSchema: Joi.object({
+    url: Joi.string().uri().required(),
+    decription: Joi.string()
+  }),
 };
 
 export { schemas };
