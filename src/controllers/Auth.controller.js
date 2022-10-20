@@ -1,13 +1,16 @@
 import bcrypt from "bcrypt";
-import { v4 as uuidv4 } from "uuid";
-import connection from "../database/Postgres.js";
+import jwt from "jsonwebtoken";
+import dotenv from "dotenv";
 import { STATUS_CODE } from "../enums/statusCode.js";
 import * as authRepository from "../repositories/Auth.repository.js";
+dotenv.config()
 
 
 const signUp = async (req, res) => {
     if (!res.locals.body) return res.sendStatus(STATUS_CODE.BAD_REQUEST)
-    const { name, email, password, confirmPassword } = res.locals.body;
+    const { name, password, confirmPassword } = res.locals.body;
+    let { email } = res.locals.body;
+    email = email.toLowerCase()
 
     if (password !== confirmPassword) {
         return res.sendStatus(STATUS_CODE.UNPROCESSABLE_ENTITY);
@@ -18,6 +21,10 @@ const signUp = async (req, res) => {
     try {
         await authRepository.insertUser({ name, email, hashPassword });
     } catch (error) {
+        if (error.code === "23505") {
+            console.log("error", error.code, "handled")
+            return res.sendStatus(STATUS_CODE.CONFLICT)
+        }
         console.log(error);
         return res.sendStatus(STATUS_CODE.SERVER_ERROR);
     }
@@ -28,7 +35,10 @@ const signUp = async (req, res) => {
 
 const signIn = async (req, res) => {
     if (!res.locals.body) return res.sendStatus(STATUS_CODE.BAD_REQUEST)
-    const { email, password } = res.locals.body;
+    const { password } = res.locals.body;
+    let { email } = res.locals.body;
+    email = email.toLowerCase()
+
     let existentUser;
 
     try {
@@ -45,8 +55,33 @@ const signIn = async (req, res) => {
     if (!await bcrypt.compare(password, existentUser.rows[0].password)) {
         return res.sendStatus(STATUS_CODE.UNAUTHORIZED);
     }
+    const userId = Number(existentUser.rows[0].id)
+    const token = jwt.sign({ userId: userId }, process.env.TOKEN_SECRET);
 
-    return res.sendStatus(STATUS_CODE.OK);
+    try {
+        await authRepository.upsertSession({ userId, token });
+    } catch (error) {
+        console.log(error);
+        return res.sendStatus(STATUS_CODE.SERVER_ERROR);
+    }
+
+    return res.status(STATUS_CODE.OK).send({ token: token });
 };
 
-export { signUp, signIn };
+
+const logout = async (req, res) => {
+    const userId = res.locals.userId
+    console.log(userId)
+
+    try {
+        await authRepository.closeSession({ userId });
+    } catch (error) {
+        console.log(error);
+        return res.sendStatus(STATUS_CODE.SERVER_ERROR);
+    }
+
+    return res.sendStatus(204);
+};
+
+
+export { signUp, signIn, logout };
