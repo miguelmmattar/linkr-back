@@ -62,6 +62,12 @@ const schemas_configuration = Object.freeze([
     ],
   },
   {
+    path: "/posts",
+    method: "POST",
+    schema_name: "postSchema",
+    request_data: "body",
+  },
+  {
     path: "/sign-in",
     method: "POST",
     schema_name: "signInSchema",
