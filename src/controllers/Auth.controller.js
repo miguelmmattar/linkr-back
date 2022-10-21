@@ -1,57 +1,89 @@
-import joi from "joi";
 import bcrypt from "bcrypt";
-import { v4 as uuidv4 } from "uuid";
-import connection from "../database/Postgres.js";
+import jwt from "jsonwebtoken";
+import dotenv from "dotenv";
 import { STATUS_CODE } from "../enums/statusCode.js";
 import * as authRepository from "../repositories/Auth.repository.js";
 
-const newUserSchema = joi.object({
-    name: joi.string().required().trim(),
-    email: joi.string().email().trim().required(),
-    password: joi.string().trim().required(),
-    confirmPassword: joi.string().trim().required()
-});
+dotenv.config()
 
-const signup = async (req, res) => {
-    if(!res.locals.body) {
-        return res.sendStatus(STATUS_CODE.BAD_REQUEST)
-    }
-    const { name, email, password, confirmPassword } = res.locals.body;
+const signUp = async (req, res) => {
+    if (!res.locals.body) return res.sendStatus(STATUS_CODE.BAD_REQUEST);
+    const { name, password, userPicture } = res.locals.body;
+    let { email } = res.locals.body;
+    email = email.toLowerCase();
     const hashPassword = bcrypt.hashSync(password, 10);
-    
-    if (password !== confirmPassword) {
-        return res.sendStatus(STATUS_CODE.UNPROCESSABLE_ENTITY);
-    }
-
-    // colocar no middleware de schemas 
-    const validation = newUserSchema.validate({ name, email, password, confirmPassword }, { abortEarly: false });
-
-    if (validation.error) {
-        return res.status(STATUS_CODE.UNPROCESSABLE_ENTITY).send(validation.error.message);
-    }
-    // colocar no unique do middleware de schemas
-    let emailAlreadyRegistered;
+    let user;
+    let userId;
 
     try {
-        emailAlreadyRegistered = await connection.query(`SELECT * FROM users WHERE email = $1;`, [email]);
+        user = await authRepository.insertUser({ name, email, hashPassword });
+        userId = user.rows[0].id;
+        
     } catch (error) {
+        if (error.code === "23505") {
+            console.log("error", error.code, "handled");
+            return res.sendStatus(STATUS_CODE.CONFLICT);
+        }
         console.log(error);
         return res.sendStatus(STATUS_CODE.SERVER_ERROR);
     }
 
-    if (emailAlreadyRegistered.rowCount > 0) {
-        return res.sendStatus(STATUS_CODE.CONFLICT);
-    }
-    //===========================================
-
     try {
-        await authRepository.insertUser({ name, email, hashPassword });
+        await authRepository.insertUserPicture({ userPicture, userId });
     } catch (error) {
         console.log(error);
         return res.sendStatus(STATUS_CODE.SERVER_ERROR);
     }
 
     return res.sendStatus(STATUS_CODE.CREATED);
-}
+};
 
-export { signup }; 
+const signIn = async (req, res) => {
+    if (!res.locals.body) return res.sendStatus(STATUS_CODE.BAD_REQUEST)
+    const { password } = res.locals.body;
+    let { email } = res.locals.body;
+    email = email.toLowerCase()
+
+    let existentUser;
+
+    try {
+        existentUser = await authRepository.getUserByEmail({ email });
+    } catch (error) {
+        console.log(error);
+        return res.sendStatus(STATUS_CODE.SERVER_ERROR);
+    }
+
+    if (existentUser.rowCount === 0) {
+        return res.sendStatus(STATUS_CODE.UNAUTHORIZED);
+    }
+
+    if (!await bcrypt.compare(password, existentUser.rows[0].password)) {
+        return res.sendStatus(STATUS_CODE.UNAUTHORIZED);
+    }
+    const userId = Number(existentUser.rows[0].id)
+    const token = jwt.sign({ userId: userId }, process.env.TOKEN_SECRET);
+
+    try {
+        await authRepository.upsertSession({ userId, token });
+    } catch (error) {
+        console.log(error);
+        return res.sendStatus(STATUS_CODE.SERVER_ERROR);
+    }
+
+    return res.status(STATUS_CODE.OK).send({ token: token });
+};
+
+const logout = async (req, res) => {
+    const userId = res.locals.userId;
+
+    try {
+        await authRepository.closeSession({ userId });
+    } catch (error) {
+        console.log(error);
+        return res.sendStatus(STATUS_CODE.SERVER_ERROR);
+    }
+
+    return res.sendStatus(204);
+};
+
+export { signUp, signIn, logout };
