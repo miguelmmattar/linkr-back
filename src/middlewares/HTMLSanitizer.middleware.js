@@ -1,20 +1,23 @@
 import { stripHtml } from "string-strip-html";
 import { STATUS_CODE } from "../enums/statusCode.js";
 
-const requestObjectsToSanitize = ["headers", "body", "query", "params"];
 const propertiesToSanitize = [
   "postId",
   "userId",
   "description",
   "email",
   "name",
-  "email",
   "password",
+  "confirmPassword",
+  "id",
+  "authorization",
+  "url",
   "userPicture",
-  "authorization"
 ];
 
 function HTMLSanitizer(request, response, next) {
+  const requestObjectsToSanitize = ["headers", "body", "query", "params"];
+
   try {
     for (let j = 0, len0 = requestObjectsToSanitize.length; j < len0; j++) {
       const objectKey = requestObjectsToSanitize[j];

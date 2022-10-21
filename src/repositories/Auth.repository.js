@@ -16,7 +16,11 @@ const insertUserPicture = ({ userId, userPicture }) => {
 
 const getUserByEmail = ({ email }) => {
     return connection.query(
-        `SELECT * FROM users WHERE email = $1;`,
+        `SELECT users.id, users.name, users.password, users.email, "userPicture".url as "userPicture"
+        FROM users 
+        JOIN "userPicture"
+        ON users.id = "userPicture"."userId" 
+        WHERE users.email = $1;`,
         [email]
     );
 };
