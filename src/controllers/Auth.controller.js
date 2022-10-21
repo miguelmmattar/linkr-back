@@ -71,7 +71,7 @@ const signIn = async (req, res) => {
         return res.sendStatus(STATUS_CODE.SERVER_ERROR);
     }
 
-    return res.status(STATUS_CODE.OK).send({ token, name, userPicture });
+    return res.status(STATUS_CODE.OK).send({ token, name, userPicture, userId});
 };
 
 const logout = async (req, res) => {
