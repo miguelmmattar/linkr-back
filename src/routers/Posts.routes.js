@@ -5,18 +5,30 @@ import { HTMLSanitizer } from "../middlewares/HTMLSanitizer.middleware.js";
 import { authorization } from "../middlewares/Authorization.middleware.js";
 import { getHashtags } from "../middlewares/Hashtags.middleware.js";
 
-
 const router = express.Router();
 
 router.use(authorization);
 
-router.post("/posts", schemaValidation, getHashtags, HTMLSanitizer, postsController.postUrl);
+router.post(
+  "/posts",
+  schemaValidation,
+  getHashtags,
+  HTMLSanitizer,
+  postsController.postUrl
+);
 router.get("/posts", postsController.getPosts);
 router.delete(
   "/posts/:id",
   HTMLSanitizer,
   schemaValidation,
   postsController.deletePost
+);
+router.put(
+  "/posts",
+  HTMLSanitizer,
+  schemaValidation,
+  getHashtags,
+  postsController.updatePost
 );
 
 export default router;
