@@ -34,10 +34,14 @@ const getPosts = () => {
 };
 
 function getPostById(id) {
+  return connection.query(`SELECT "userId" FROM posts WHERE id=$1;`, [id]);
+}
+
+function updatePost({ id, description }) {
   return connection.query(
-    `SELECT "userId" FROM posts WHERE id=$1;`,
-    [id]
+    `UPDATE ${TABLE} SET url=$1, description=$2, "userId"=$3  WHERE id=$4;`,
+    [id, description]
   );
 }
 
-export { postUrl, getPosts, deletePost, getPostById };
+export { postUrl, getPosts, deletePost, getPostById, updatePost };
