@@ -3,7 +3,6 @@ import { STATUS_CODE } from "../enums/statusCode.js";
 import * as postsRepository from "../repositories/Posts.repository.js";
 import urlMetadata from "url-metadata";
 import {
-  insertPost,
   insertPostHashtag,
 } from "../repositories/Hashtags.repository.js";
 
@@ -11,10 +10,10 @@ const postUrl = async (req, res) => {
   const { url, description } = req.body;
   const { userId } = res.locals;
   const hashtagsArray = res.locals.hashtags;
+  const TABLE_HASHTAG = "hashtags";
 
   try {
-    await postsRepository.postUrl(url, description, userId);
-    const id = await insertPost({ description, url, userId });
+    const id = await postsRepository.postUrl({url, description, userId});
     if (hashtagsArray.length > 0) {
       for (let i = 0; i < hashtagsArray.length; i++) {
         let hashtagId = await connection.query(
