@@ -7,12 +7,13 @@ import {
 
 async function postContent(req, res) {
   //  const {description, url} = req.body;
-  const TABLE_POSTSHASHTAGS = "postsHashtags";
+
+  const TABLE_HASHTAG = "hashtags";
+
   const description =
     "kfpewkfopewk #teste #teste #teste2 #teste3 #teste4 #teste5 #teste12";
   const url = "https://youtube.com";
   const userId = 6;
-
   const hashtagsArray = res.locals.hashtags;
 
   // >>>>>>>>>>>> INSERT INTO posts
@@ -22,14 +23,14 @@ async function postContent(req, res) {
     if (hashtagsArray.length > 0) {
       for (let i = 0; i < hashtagsArray.length; i++) {
         let hashtagId = await connection.query(
-          `SELECT id FROM hashtags WHERE hashtag = $1;`,
+          `SELECT id FROM ${TABLE_HASHTAG} WHERE hashtag = $1;`,
           [hashtagsArray[i]]
         );
         hashtagId = hashtagId.rows[0].id;
         await insertPostHashtag({ id, hashtagId });
       }
     }
-    res.send("okkkk");
+    res.sendStatus(STATUS_CODE.OK);
   } catch (error) {
     console.log(error.message);
     res.sendStatus(STATUS_CODE.SERVER_ERROR);

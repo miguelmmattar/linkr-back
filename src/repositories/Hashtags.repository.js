@@ -2,6 +2,7 @@ import connection from "../database/Postgres.js";
 
 const TABLE_HASHTAG = "hashtags";
 const TABLE_POST = "posts";
+const TABLE_POSTSHASHTAGS = `"postsHashtags"`;
 
 async function getRepeatedHashtag(string) {
   const repeatedHashtag = await connection.query(
@@ -28,9 +29,26 @@ async function insertPost({ description, url, userId }) {
 
 function insertPostHashtag({ id, hashtagId }) {
   return connection.query(
-    `INSERT INTO "postsHashtags" ("postId", "hashtagId") VALUES ($1, $2);`,
+    `INSERT INTO ${TABLE_POSTSHASHTAGS} ("postId", "hashtagId") VALUES ($1, $2);`,
     [id, hashtagId]
   );
 }
 
-export { getRepeatedHashtag, insertHashtags, insertPost, insertPostHashtag };
+async function getHashtagsTrending() {
+  const trending = await connection.query(`
+    SELECT ${TABLE_HASHTAG}.id, COUNT(${TABLE_POSTSHASHTAGS}."hashtagId") AS count, ${TABLE_HASHTAG}.hashtag FROM ${TABLE_HASHTAG} 
+    JOIN ${TABLE_POSTSHASHTAGS} ON ${TABLE_HASHTAG}.id = ${TABLE_POSTSHASHTAGS}."hashtagId"
+    GROUP BY ${TABLE_HASHTAG}.id
+    ORDER BY count DESC
+    LiMIT 10
+    `);
+  return trending.rows;
+}
+
+export {
+  getRepeatedHashtag,
+  insertHashtags,
+  insertPost,
+  insertPostHashtag,
+  getHashtagsTrending,
+};
