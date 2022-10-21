@@ -1,22 +1,39 @@
-import { STATUS_CODE } from "../enums/statusCode.js";
+import connection from "../database/Postgres.js";
 import * as postsRepository from "../repositories/Posts.repository.js";
 import urlMetadata from "url-metadata";
+import { STATUS_CODE } from "../enums/statusCode.js";
+import {
+  insertPost,
+  insertPostHashtag,
+} from "../repositories/Hashtags.repository.js";
 
 const postUrl = async (req, res) => {
   const { url, description } = req.body;
   const { userId } = res.locals;
+  const hashtagsArray = res.locals.hashtags;
 
   try {
     await postsRepository.postUrl(url, description, userId);
-
-    res.sendStatus(201);
+    const id = await insertPost({ description, url, userId });
+    if (hashtagsArray.length > 0) {
+      for (let i = 0; i < hashtagsArray.length; i++) {
+        let hashtagId = await connection.query(
+          `SELECT id FROM ${TABLE_HASHTAG} WHERE hashtag = $1;`,
+          [hashtagsArray[i]]
+        );
+        hashtagId = hashtagId.rows[0].id;
+        await insertPostHashtag({ id, hashtagId });
+      }
+    }
+    res.sendStatus(STATUS_CODE.CREATED);
   } catch (error) {
-    return res.status(500).send(error.message);
-  }
+    return res.status(STATUS_CODE.SERVER_ERROR).send(error.message);
 };
 
 const getPosts = async (req, res) => {
   try {
+    //const result = await postsRepository.getPosts();
+
     const result = [
       {
         link: "https://www.globo.com/",
