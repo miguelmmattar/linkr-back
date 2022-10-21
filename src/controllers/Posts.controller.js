@@ -48,12 +48,17 @@ const getMetadatas = async (result) => {
     const posts = await Promise.all(
       result.map(async (post) => {
         const metadata = await urlMetadata(post.link);
+        let image = metadata.image;
+
+        if(!image.includes('http')) {
+          image = metadata.url + image;
+        }
 
         const info = {
           url: metadata.url,
           title: metadata.title,
           description: metadata.description,
-          image: metadata.image,
+          image: image,
         };
 
         return { ...post, link: info };
