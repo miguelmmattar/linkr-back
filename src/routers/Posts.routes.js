@@ -8,10 +8,9 @@ import { getHashtags } from "../middlewares/Hashtags.middleware.js";
 
 const router = express.Router();
 
-router.use(HTMLSanitizer);
 router.use(authorization);
 
-router.post("/posts", schemaValidation, getHashtags, postsController.postUrl);
+router.post("/posts", schemaValidation, getHashtags, HTMLSanitizer, postsController.postUrl);
 router.get("/posts", postsController.getPosts);
 router.delete(
   "/posts/:id",

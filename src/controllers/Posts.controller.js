@@ -32,30 +32,9 @@ const postUrl = async (req, res) => {
 
 const getPosts = async (req, res) => {
   try {
-    const result = [
-      {
-        link: "https://www.globo.com/",
-        description: "Description",
-        user: {
-          name: "Neytiri",
-          picture:
-            "https://conteudo.imguol.com.br/c/entretenimento/80/2017/04/25/a-atriz-zoe-saldana-como-neytiri-em-avatar-1493136439818_v2_4x3.jpg",
-        },
-        createdAt: "10/04/2021",
-      },
-      {
-        link: "https://www.globo.com/",
-        description: "Description",
-        user: {
-          name: "Aang",
-          picture:
-            "https://upload.wikimedia.org/wikipedia/pt/8/86/Avatar_Aang.png",
-        },
-        createdAt: "25/11/2020",
-      },
-    ];
+    const result = await postsRepository.getPosts();
 
-    const posts = await getMetadatas(result);
+    const posts = await getMetadatas(result.rows);
 
     res.status(200).send(posts);
   } catch (error) {
@@ -113,4 +92,8 @@ const deletePost = async (request, response) => {
   }
 };
 
-export { postUrl, getPosts, getMetadatas, deletePost };
+export { 
+  postUrl, 
+  getPosts, 
+  deletePost 
+};
