@@ -40,4 +40,4 @@ function getPostById(id) {
   );
 }
 
-export { postUrl, getPosts, deletePost, getPostById };
+export { postUrl, getPosts, deletePost, getPostById }; 
