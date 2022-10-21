@@ -1,7 +1,6 @@
 import connection from "../database/Postgres.js";
 
 const TABLE_HASHTAG = "hashtags";
-const TABLE_POST = "posts";
 const TABLE_POSTSHASHTAGS = `"postsHashtags"`;
 
 async function getRepeatedHashtag(string) {
@@ -17,14 +16,6 @@ function insertHashtags(string) {
     `INSERT INTO ${TABLE_HASHTAG} (hashtag) VALUES ($1);`,
     [string]
   );
-}
-
-async function insertPost({ description, url, userId }) {
-  const insert = await connection.query(
-    `INSERT INTO ${TABLE_POST} (description, url, "userId") VALUES ($1, $2, $3) RETURNING id;`,
-    [description, url, userId]
-  );
-  return insert.rows[0].id;
 }
 
 function insertPostHashtag({ id, hashtagId }) {
@@ -48,7 +39,6 @@ async function getHashtagsTrending() {
 export {
   getRepeatedHashtag,
   insertHashtags,
-  insertPost,
   insertPostHashtag,
   getHashtagsTrending,
 };
