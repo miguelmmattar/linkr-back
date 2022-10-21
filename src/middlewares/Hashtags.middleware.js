@@ -5,9 +5,7 @@ import {
 import { STATUS_CODE } from "../enums/statusCode.js";
 
 async function getHashtags(req, res, next) {
-  //const { description } = req.body;
-  const description =
-    "kfpewkfopewk #teste #teste #teste2 #teste3 #teste4 #teste5 #teste13 #teste6 #teste7 #teste8 #teste9 #teste10 #teste11 #teste12 #teste14 #teste15 #teste16";
+  const { description } = req.body;
 
   const getHashtagsFromDescription = description
     .split(" ")
