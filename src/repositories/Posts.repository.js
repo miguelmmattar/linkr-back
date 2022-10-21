@@ -18,16 +18,16 @@ const postUrl = (url, description, user) => {
 const getPosts = () => {
   return connection.query(`
         SELECT 
-            url,
-            description,
-            json_buid_object('name', users.name, 'picture', "userPicture".url) AS user,
-            "createdAt"
+            posts.url AS link,
+            posts.description,
+            json_build_object('name', users.name, 'picture', "userPicture".url) AS user,
+            posts."createdAt"
         FROM 
             posts
         JOIN users
             ON users.id = posts."userId"
         JOIN "userPicture"
-            ON users.id = "userPictures".userId
+            ON users.id = "userPicture"."userId"
         ORDER BY "createdAt" DESC
         LIMIT 20;
     `);
@@ -40,4 +40,4 @@ function getPostById(id) {
   );
 }
 
-export { postUrl, getPosts, deletePost, getPostById };
+export { postUrl, getPosts, deletePost, getPostById }; 
