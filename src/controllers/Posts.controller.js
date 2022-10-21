@@ -28,7 +28,6 @@ const postUrl = async (req, res) => {
     res.sendStatus(STATUS_CODE.CREATED);
   } catch (error) {
     return res.status(STATUS_CODE.SERVER_ERROR).send(error.message);
-  }
 };
 
 const getPosts = async (req, res) => {
@@ -89,4 +88,31 @@ const getMetadatas = async (result) => {
   }
 };
 
-export { postUrl, getPosts };
+const deletePost = async (request, response) => {
+  try {
+    const { userId } = response.locals;
+    const { id } = response.locals.safeData;
+    const postQuery = await postsRepository.getPostById(id);
+    const post = postQuery.rows[0];
+
+    if (post.userId !== userId) {
+      response.sendStatus(STATUS_CODE.UNAUTHORIZED);
+      return;
+    }
+
+    const deleteQuery = postsRepository.deletePost(id);
+
+    if (deleteQuery.rowCount === 0) {
+      response.status(STATUS_CODE.SERVER_ERROR).send("failed to delete post");
+      return;
+    }
+
+    response.sendStatus(STATUS_CODE.NO_CONTENT);
+  } catch (error) {
+    console.log(error.message);
+    response.sendStatus(STATUS_CODE.SERVER_ERROR);
+    return;
+  }
+};
+
+export { postUrl, getPosts, getMetadatas, deletePost };

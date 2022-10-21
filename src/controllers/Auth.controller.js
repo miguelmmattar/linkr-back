@@ -18,7 +18,7 @@ const signUp = async (req, res) => {
     try {
         user = await authRepository.insertUser({ name, email, hashPassword });
         userId = user.rows[0].id;
-        
+
     } catch (error) {
         if (error.code === "23505") {
             console.log("error", error.code, "handled");
@@ -60,7 +60,8 @@ const signIn = async (req, res) => {
     if (!await bcrypt.compare(password, existentUser.rows[0].password)) {
         return res.sendStatus(STATUS_CODE.UNAUTHORIZED);
     }
-    const userId = Number(existentUser.rows[0].id)
+    const userId = Number(existentUser.rows[0].id);
+    const { name, userPicture } = existentUser.rows[0];
     const token = jwt.sign({ userId: userId }, process.env.TOKEN_SECRET);
 
     try {
@@ -70,7 +71,7 @@ const signIn = async (req, res) => {
         return res.sendStatus(STATUS_CODE.SERVER_ERROR);
     }
 
-    return res.status(STATUS_CODE.OK).send({ token: token });
+    return res.status(STATUS_CODE.OK).send({ token, name, userPicture });
 };
 
 const logout = async (req, res) => {

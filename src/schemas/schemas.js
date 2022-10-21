@@ -33,9 +33,9 @@ const schemas = {
     url: Joi.string().uri().required(),
   }),
 
-  postScheema: Joi.object({
+  postSchema: Joi.object({
     url: Joi.string().uri().required(),
-    decription: Joi.string()
+    description: Joi.string()
   }),
 };
 

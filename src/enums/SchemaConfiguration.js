@@ -62,6 +62,21 @@ const schemas_configuration = Object.freeze([
     ],
   },
   {
+    path: "/posts/:id",
+    method: "DELETE",
+    schema_name: "idSchema",
+    request_data: "params",
+    uniques: [
+      {
+        property: "id",
+        table: "posts",
+        must_not_exist: false,
+        must_not_exist_status_code: STATUS_CODE.NOT_FOUND,
+        error_details: false,
+      },
+    ],
+  },
+  {
     path: "/posts",
     method: "POST",
     schema_name: "postSchema",
