@@ -7,12 +7,12 @@ const propertiesToSanitize = [
   "description",
   "email",
   "name",
-  "email",
   "password",
   "confirmPassword",
   "id",
   "authorization",
   "url",
+  "userPicture",
 ];
 
 function HTMLSanitizer(request, response, next) {

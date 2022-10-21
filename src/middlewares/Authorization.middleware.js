@@ -22,7 +22,7 @@ const authorization = async (req, res, next) => {
         existentSession = await authRepository.getSessionByUserId({ userId })
     } catch (error) {
         console.log(error);
-        return res.sendStatus(500);
+        return res.sendStatus(STATUS_CODE.SERVER_ERROR);
     }
     
     if (existentSession.rowCount === 0) return res.sendStatus(STATUS_CODE.BAD_REQUEST);

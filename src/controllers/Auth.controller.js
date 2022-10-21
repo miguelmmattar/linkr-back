@@ -7,24 +7,30 @@ import * as authRepository from "../repositories/Auth.repository.js";
 dotenv.config()
 
 const signUp = async (req, res) => {
-    if (!res.locals.body) return res.sendStatus(STATUS_CODE.BAD_REQUEST)
-    const { name, password, confirmPassword } = res.locals.body;
+    if (!res.locals.body) return res.sendStatus(STATUS_CODE.BAD_REQUEST);
+    const { name, password, userPicture } = res.locals.body;
     let { email } = res.locals.body;
-    email = email.toLowerCase()
-
-    if (password !== confirmPassword) {
-        return res.sendStatus(STATUS_CODE.UNPROCESSABLE_ENTITY);
-    }
-
+    email = email.toLowerCase();
     const hashPassword = bcrypt.hashSync(password, 10);
+    let user;
+    let userId;
 
     try {
-        await authRepository.insertUser({ name, email, hashPassword });
+        user = await authRepository.insertUser({ name, email, hashPassword });
+        userId = user.rows[0].id;
+
     } catch (error) {
         if (error.code === "23505") {
-            console.log("error", error.code, "handled")
-            return res.sendStatus(STATUS_CODE.CONFLICT)
+            console.log("error", error.code, "handled");
+            return res.sendStatus(STATUS_CODE.CONFLICT);
         }
+        console.log(error);
+        return res.sendStatus(STATUS_CODE.SERVER_ERROR);
+    }
+
+    try {
+        await authRepository.insertUserPicture({ userPicture, userId });
+    } catch (error) {
         console.log(error);
         return res.sendStatus(STATUS_CODE.SERVER_ERROR);
     }
@@ -54,7 +60,8 @@ const signIn = async (req, res) => {
     if (!await bcrypt.compare(password, existentUser.rows[0].password)) {
         return res.sendStatus(STATUS_CODE.UNAUTHORIZED);
     }
-    const userId = Number(existentUser.rows[0].id)
+    const userId = Number(existentUser.rows[0].id);
+    const { name, userPicture } = existentUser.rows[0];
     const token = jwt.sign({ userId: userId }, process.env.TOKEN_SECRET);
 
     try {
@@ -64,7 +71,7 @@ const signIn = async (req, res) => {
         return res.sendStatus(STATUS_CODE.SERVER_ERROR);
     }
 
-    return res.status(STATUS_CODE.OK).send({ token: token });
+    return res.status(STATUS_CODE.OK).send({ token, name, userPicture });
 };
 
 const logout = async (req, res) => {

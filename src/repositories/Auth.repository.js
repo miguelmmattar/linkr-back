@@ -2,14 +2,25 @@ import connection from "../database/Postgres.js";
 
 const insertUser = ({ name, email, hashPassword }) => {
     return connection.query(
-        `INSERT INTO users (name, email, password) VALUES ($1, $2, $3);`,
+        `INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING id;`,
         [name, email, hashPassword]
+    );
+};
+
+const insertUserPicture = ({ userId, userPicture }) => {
+    return connection.query(
+        `INSERT INTO "userPicture" ("userId", url ) VALUES ($1, $2);`,
+        [userId, userPicture]
     );
 };
 
 const getUserByEmail = ({ email }) => {
     return connection.query(
-        `SELECT * FROM users WHERE email = $1;`,
+        `SELECT users.id, users.name, users.password, users.email, "userPicture".url as "userPicture"
+        FROM users 
+        JOIN "userPicture"
+        ON users.id = "userPicture"."userId" 
+        WHERE users.email = $1;`,
         [email]
     );
 };
@@ -49,14 +60,17 @@ const upsertSession = async ({ userId, token }) => {
     }
 };
 
-const closeSession = ({userId}) => {
+const closeSession = ({ userId }) => {
     return connection.query(
         `UPDATE sessions SET "closedAt" = now() WHERE "userId" = $1 AND "closedAt" IS NULL;`,
         [userId]
     );
 };
-export { 
+
+
+export {
     insertUser,
+    insertUserPicture,
     getUserByEmail,
     upsertSession,
     updateSession,
