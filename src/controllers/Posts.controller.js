@@ -1,46 +1,40 @@
+import connection from "../database/Postgres.js";
 import { STATUS_CODE } from "../enums/statusCode.js";
 import * as postsRepository from "../repositories/Posts.repository.js";
 import urlMetadata from "url-metadata";
+import {
+  insertPostHashtag,
+} from "../repositories/Hashtags.repository.js";
 
 const postUrl = async (req, res) => {
   const { url, description } = req.body;
   const { userId } = res.locals;
+  const hashtagsArray = res.locals.hashtags;
+  const TABLE_HASHTAG = "hashtags";
 
   try {
-    await postsRepository.postUrl(url, description, userId);
-
-    res.sendStatus(201);
+    const id = await postsRepository.postUrl({url, description, userId});
+    if (hashtagsArray.length > 0) {
+      for (let i = 0; i < hashtagsArray.length; i++) {
+        let hashtagId = await connection.query(
+          `SELECT id FROM ${TABLE_HASHTAG} WHERE hashtag = $1;`,
+          [hashtagsArray[i]]
+        );
+        hashtagId = hashtagId.rows[0].id;
+        await insertPostHashtag({ id, hashtagId });
+      }
+    }
+    res.sendStatus(STATUS_CODE.CREATED);
   } catch (error) {
-    return res.status(500).send(error.message);
+    return res.status(STATUS_CODE.SERVER_ERROR).send(error.message);
   }
 };
 
 const getPosts = async (req, res) => {
   try {
-    const result = [
-      {
-        link: "https://www.globo.com/",
-        description: "Description",
-        user: {
-          name: "Neytiri",
-          picture:
-            "https://conteudo.imguol.com.br/c/entretenimento/80/2017/04/25/a-atriz-zoe-saldana-como-neytiri-em-avatar-1493136439818_v2_4x3.jpg",
-        },
-        createdAt: "10/04/2021",
-      },
-      {
-        link: "https://www.globo.com/",
-        description: "Description",
-        user: {
-          name: "Aang",
-          picture:
-            "https://upload.wikimedia.org/wikipedia/pt/8/86/Avatar_Aang.png",
-        },
-        createdAt: "25/11/2020",
-      },
-    ];
+    const result = await postsRepository.getPosts();
 
-    const posts = await getMetadatas(result);
+    const posts = await getMetadatas(result.rows);
 
     res.status(200).send(posts);
   } catch (error) {
@@ -98,4 +92,8 @@ const deletePost = async (request, response) => {
   }
 };
 
-export { postUrl, getPosts, getMetadatas, deletePost };
+export { 
+  postUrl, 
+  getPosts, 
+  deletePost 
+};

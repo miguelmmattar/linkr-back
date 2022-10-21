@@ -6,28 +6,29 @@ function deletePost(id) {
   return connection.query(`DELETE FROM ${TABLE} WHERE "id"=$1`, [id]);
 }
 
-const postUrl = (url, description, user) => {
-  return connection.query(
+ async function postUrl ({url, description, userId}) {
+  const insert = await connection.query(
     `
-        INSERT INTO posts (url, description, "userId") VALUES ($1, $2, $3)
+        INSERT INTO posts (url, description, "userId") VALUES ($1, $2, $3) RETURNING id
     `,
-    [url, description, user]
+    [url, description, userId]
   );
+  return insert.rows[0].id;
 };
 
 const getPosts = () => {
   return connection.query(`
         SELECT 
-            url,
-            description,
-            json_buid_object('name', users.name, 'picture', "userPicture".url) AS user,
-            "createdAt"
+            posts.url AS link,
+            posts.description,
+            json_build_object('name', users.name, 'picture', "userPicture".url) AS user,
+            posts."createdAt"
         FROM 
             posts
         JOIN users
             ON users.id = posts."userId"
         JOIN "userPicture"
-            ON users.id = "userPictures".userId
+            ON users.id = "userPicture"."userId"
         ORDER BY "createdAt" DESC
         LIMIT 20;
     `);
