@@ -27,7 +27,8 @@ const postUrl = async (req, res) => {
     }
     res.sendStatus(STATUS_CODE.CREATED);
   } catch (error) {
-    return res.status(STATUS_CODE.SERVER_ERROR).send(error.message);
+      return res.status(STATUS_CODE.SERVER_ERROR).send(error.message);
+  }
 };
 
 const getPosts = async (req, res) => {
