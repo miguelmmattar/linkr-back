@@ -6,7 +6,7 @@ function deletePost(id) {
   return connection.query(`DELETE FROM ${TABLE} WHERE "id"=$1`, [id]);
 }
 
- async function postUrl ({url, description, userId}) {
+async function postUrl({ url, description, userId }) {
   const insert = await connection.query(
     `
         INSERT INTO posts (url, description, "userId") VALUES ($1, $2, $3) RETURNING id
@@ -14,7 +14,7 @@ function deletePost(id) {
     [url, description, userId]
   );
   return insert.rows[0].id;
-};
+}
 
 const getPosts = () => {
   return connection.query(`
@@ -35,10 +35,14 @@ const getPosts = () => {
 };
 
 function getPostById(id) {
+  return connection.query(`SELECT "userId" FROM posts WHERE id=$1;`, [id]);
+}
+
+function updatePost({ url, description, userId, id }) {
   return connection.query(
-    `SELECT "userId" FROM posts WHERE id=$1;`,
-    [id]
+    `UPDATE ${TABLE} SET url=$1, description=$2, "userId"=$3  WHERE id=$4;`,
+    [url, description, userId, id]
   );
 }
 
-export { postUrl, getPosts, deletePost, getPostById };
+export { postUrl, getPosts, deletePost, getPostById, updatePost };

@@ -5,7 +5,6 @@ import { HTMLSanitizer } from "../middlewares/HTMLSanitizer.middleware.js";
 import { authorization } from "../middlewares/Authorization.middleware.js";
 import { getHashtags } from "../middlewares/Hashtags.middleware.js";
 
-
 const router = express.Router();
 
 router.use(authorization);
@@ -17,6 +16,13 @@ router.delete(
   HTMLSanitizer,
   schemaValidation,
   postsController.deletePost
+);
+router.put(
+  "/posts",
+  HTMLSanitizer,
+  schemaValidation,
+  getHashtags,
+  postsController.updatePost
 );
 
 export default router;

@@ -2,9 +2,7 @@ import connection from "../database/Postgres.js";
 import { STATUS_CODE } from "../enums/statusCode.js";
 import * as postsRepository from "../repositories/Posts.repository.js";
 import urlMetadata from "url-metadata";
-import {
-  insertPostHashtag,
-} from "../repositories/Hashtags.repository.js";
+import * as hashtagRepository from "../repositories/Hashtags.repository.js";
 
 const postUrl = async (req, res) => {
   const { url, description } = req.body;
@@ -13,7 +11,7 @@ const postUrl = async (req, res) => {
   const TABLE_HASHTAG = "hashtags";
 
   try {
-    const id = await postsRepository.postUrl({url, description, userId});
+    const id = await postsRepository.postUrl({ url, description, userId });
     if (hashtagsArray.length > 0) {
       for (let i = 0; i < hashtagsArray.length; i++) {
         let hashtagId = await connection.query(
@@ -21,7 +19,7 @@ const postUrl = async (req, res) => {
           [hashtagsArray[i]]
         );
         hashtagId = hashtagId.rows[0].id;
-        await insertPostHashtag({ id, hashtagId });
+        await hashtagRepository.insertPostHashtag({ id, hashtagId });
       }
     }
     res.sendStatus(STATUS_CODE.CREATED);
@@ -97,8 +95,42 @@ const deletePost = async (request, response) => {
   }
 };
 
-export { 
-  postUrl, 
-  getPosts, 
-  deletePost 
+const updatePost = async (request, response) => {
+  const { url, description, id } = response.locals.safeData;
+  const { userId } = response.locals;
+  const hashtagsArray = response.locals.hashtags;
+  const TABLE_HASHTAG = "hashtags";
+
+  try {
+    const updateQuery = await postsRepository.updatePost({
+      url,
+      description,
+      userId,
+      id,
+    });
+
+    if (updateQuery.rowCount === 0) {
+      response.status(STATUS_CODE.SERVER_ERROR).send("failed to update post");
+      return;
+    }
+
+    if (hashtagsArray.length > 0) {
+      for (let i = 0; i < hashtagsArray.length; i++) {
+        let hashtagId = await connection.query(
+          `SELECT id FROM ${TABLE_HASHTAG} WHERE hashtag = $1;`,
+          [hashtagsArray[i]]
+        );
+        hashtagId = hashtagId.rows[0].id;
+        await hashtagRepository.insertPostHashtag({ id, hashtagId });
+      }
+    }
+
+    response.sendStatus(STATUS_CODE.CREATED);
+  } catch (error) {
+    console.log(error.message);
+    response.sendStatus(STATUS_CODE.SERVER_ERROR);
+    return;
+  }
 };
+
+export { postUrl, getPosts, deletePost, updatePost };

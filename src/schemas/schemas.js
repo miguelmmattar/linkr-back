@@ -15,14 +15,12 @@ const schemas = {
       .minOfNumeric(1)
       .noWhiteSpaces()
       .required(),
-    userPicture: Joi.string().uri().required()
+    userPicture: Joi.string().uri().required(),
   }).unknown(false),
 
   signInSchema: Joi.object({
     email: Joi.string().min(1).email().required(),
-    password: JoiPassword.string()
-      .noWhiteSpaces()
-      .required(),
+    password: JoiPassword.string().noWhiteSpaces().required(),
   }).unknown(false),
 
   idSchema: Joi.object({
@@ -35,7 +33,13 @@ const schemas = {
 
   postSchema: Joi.object({
     url: Joi.string().uri().required(),
-    description: Joi.string()
+    description: Joi.string(),
+  }),
+  
+  updatePostSchema: Joi.object({
+    id: Joi.number().integer().required(),
+    url: Joi.string().uri().required(),
+    description: Joi.string(),
   }),
 };
 
