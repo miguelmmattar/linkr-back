@@ -1,6 +1,7 @@
 import connection from "../database/Postgres.js";
 import { STATUS_CODE } from "../enums/statusCode.js";
 import * as postsRepository from "../repositories/Posts.repository.js";
+import * as likesRepository from "../repositories/Likes.repository.js";
 import urlMetadata from "url-metadata";
 import * as hashtagRepository from "../repositories/Hashtags.repository.js";
 
@@ -31,17 +32,26 @@ const postUrl = async (req, res) => {
 const getPosts = async (req, res) => {
   try {
     const filter = req.params.id;
-    let result;
-
-    console.log(filter)
+    let resultPosts;
+    let resultLikes;
     
     if(filter) {
-      result = await postsRepository.getPosts(filter);
+      resultPosts = await postsRepository.getPosts(filter);
+      resultLikes = await likesRepository.getLikes(filter);
     } else {
-      result = await postsRepository.getPosts();
+      resultPosts = await postsRepository.getPosts();
+      resultLikes = await likesRepository.getLikes(filter);
     }
 
-    const posts = await getMetadatas(result.rows);
+    const result = await Promise.all(
+      resultPosts.rows.map(async (post, index) => {
+        return {...post, likedBy: resultLikes.rows[index].likedBy};
+      })
+    );
+
+    console.log(result)
+
+    const posts = await getMetadatas(result); 
 
     res.status(200).send(posts);
   } catch (error) {
