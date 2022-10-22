@@ -30,7 +30,16 @@ const postUrl = async (req, res) => {
 
 const getPosts = async (req, res) => {
   try {
-    const result = await postsRepository.getPosts();
+    const filter = req.params.id;
+    let result;
+
+    console.log(filter)
+    
+    if(filter) {
+      result = await postsRepository.getPosts(filter);
+    } else {
+      result = await postsRepository.getPosts();
+    }
 
     const posts = await getMetadatas(result.rows);
 

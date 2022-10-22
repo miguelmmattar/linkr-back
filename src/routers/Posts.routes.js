@@ -11,6 +11,7 @@ router.use(authorization);
 
 router.post("/posts", schemaValidation, getHashtags, HTMLSanitizer, postsController.postUrl);
 router.get("/posts",HTMLSanitizer, postsController.getPosts);
+router.get("/user/:id", HTMLSanitizer, postsController.getPosts);
 router.delete(
   "/posts/:id",
   HTMLSanitizer,
