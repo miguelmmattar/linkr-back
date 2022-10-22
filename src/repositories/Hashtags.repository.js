@@ -36,9 +36,17 @@ async function getHashtagsTrending() {
   return trending.rows;
 }
 
+function deletePostHashtagByPostId(id) {
+  return connection.query(
+    `DELETE FROM ${TABLE_POSTSHASHTAGS} WHERE "postId"=$1`,
+    [id]
+  );
+}
+
 export {
   getRepeatedHashtag,
   insertHashtags,
   insertPostHashtag,
   getHashtagsTrending,
+  deletePostHashtagByPostId,
 };
