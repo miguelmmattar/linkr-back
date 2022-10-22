@@ -16,12 +16,18 @@ function deletePost(id) {
   return insert.rows[0].id;
 };
 
-const getPosts = () => {
+const getPosts = (id) => {
+  let filter = "";
+
+  if(id) {
+    filter = `WHERE users.id = ${id}`;
+  }
+
   return connection.query(`
         SELECT 
             posts.url AS link,
             posts.description,
-            json_build_object('name', users.name, 'picture', "userPicture".url) AS user,
+            json_build_object('id', users.id,'name', users.name, 'picture', "userPicture".url) AS user,
             posts."createdAt"
         FROM 
             posts
@@ -29,6 +35,7 @@ const getPosts = () => {
             ON users.id = posts."userId"
         JOIN "userPicture"
             ON users.id = "userPicture"."userId"
+        ${filter}
         ORDER BY "createdAt" DESC
         LIMIT 20;
     `);
