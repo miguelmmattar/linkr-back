@@ -25,7 +25,7 @@ function getLikes({ id }) {
 
   return connection.query(
     `SELECT 
-        posts.id AS postId,
+        posts.id AS "postId",
         COALESCE(json_agg(json_build_object('id', likes."userId", 'name', users.name)) 
             FILTER (WHERE likes."userId" IS NOT NULL), '[]') AS "likedBy"
     FROM 
@@ -36,8 +36,7 @@ function getLikes({ id }) {
         ON likes."userId" = users.id
     ${filter}
     GROUP BY posts.id
-    ORDER BY posts."createdAt" DESC
-    LIMIT 20;`
+    ORDER BY posts."createdAt" DESC;`
   );
 }
 

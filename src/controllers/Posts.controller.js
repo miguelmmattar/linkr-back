@@ -34,6 +34,7 @@ const getPosts = async (req, res) => {
     const filter = req.params.id;
     let resultPosts;
     let resultLikes;
+    let likesHashtable = {};
     
     if(filter) {
       resultPosts = await postsRepository.getPosts(filter);
@@ -43,13 +44,17 @@ const getPosts = async (req, res) => {
       resultLikes = await likesRepository.getLikes(filter);
     }
 
+    resultLikes.rows.forEach(like => {
+      
+      likesHashtable = {...likesHashtable, [like.postId]: like.likedBy}
+    });
+
     const result = await Promise.all(
       resultPosts.rows.map(async (post, index) => {
-        return {...post, likedBy: resultLikes.rows[index].likedBy};
+        const postId = (post.id);
+        return {...post, likedBy: likesHashtable[postId]};
       })
     );
-
-    console.log(result)
 
     const posts = await getMetadatas(result); 
 
