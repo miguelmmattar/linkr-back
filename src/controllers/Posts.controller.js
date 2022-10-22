@@ -33,30 +33,25 @@ const getPosts = async (req, res) => {
   try {
     const filter = req.params.id;
     let resultPosts;
-    let resultLikes;
     let likesHashtable = {};
-    
+    const resultLikes = await likesRepository.getLikes();
+
     if(filter) {
       resultPosts = await postsRepository.getPosts(filter);
-      resultLikes = await likesRepository.getLikes(filter);
     } else {
       resultPosts = await postsRepository.getPosts();
-      resultLikes = await likesRepository.getLikes(filter);
     }
 
     resultLikes.rows.forEach(like => {
-      
       likesHashtable = {...likesHashtable, [like.postId]: like.likedBy}
     });
 
-    const result = await Promise.all(
-      resultPosts.rows.map(async (post, index) => {
+    const result = resultPosts.rows.map(post => {
         const postId = (post.id);
         return {...post, likedBy: likesHashtable[postId]};
-      })
-    );
+      });
 
-    const posts = await getMetadatas(result); 
+    const posts = await getMetadatas(result);
 
     res.status(200).send(posts);
   } catch (error) {
