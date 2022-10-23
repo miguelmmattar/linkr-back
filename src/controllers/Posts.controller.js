@@ -33,17 +33,20 @@ const getPosts = async (req, res) => {
   try {
     const filter = req.params.id;
     let resultPosts;
+    let resultLikes;
     let likesHashtable = {};
-    const resultLikes = await likesRepository.getLikes();
-
+    
     if(filter) {
       resultPosts = await postsRepository.getPosts(filter);
+      resultLikes = await likesRepository.getLikes(filter);
     } else {
       resultPosts = await postsRepository.getPosts();
+      resultLikes = await likesRepository.getLikes();
     }
 
     resultLikes.rows.forEach(like => {
-      likesHashtable = {...likesHashtable, [like.postId]: like.likedBy}
+      const element = like.postId;
+      likesHashtable[element] = like.likedBy;
     });
 
     const result = resultPosts.rows.map(post => {
