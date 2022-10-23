@@ -6,7 +6,12 @@ import { authorization } from "../middlewares/Authorization.middleware.js";
 
 const router = express.Router();
 
-router.use(HTMLSanitizer);
-router.post("/posts/likes", schemaValidation, authorization, postLike);
+router.post(
+  "/posts/likes/:id",
+  HTMLSanitizer,
+  schemaValidation,
+  authorization,
+  postLike
+);
 
 export default router;
