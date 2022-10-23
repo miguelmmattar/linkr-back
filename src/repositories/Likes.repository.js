@@ -4,12 +4,13 @@ const TABLE = "likes";
 
 function insertLike({ postId, userId }) {
   return connection.query(
-    `INSERT INTO ${TABLE} (postId, userId) VALUES ($1, $2)`,
+    `INSERT INTO ${TABLE} ("postId", "userId") VALUES ($1, $2)`,
     [postId, userId]
   );
 }
 
 function deleteLike({ postId, userId }) {
+  console.log(postId, userId)
   return connection.query(
     `DELETE FROM ${TABLE} WHERE "postId"=$1 AND "userId"=$2`,
     [postId, userId]

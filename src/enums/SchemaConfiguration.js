@@ -49,13 +49,13 @@ const schemas_configuration = Object.freeze([
     ],
   },
   {
-    path: "/posts/likes",
+    path: "/posts/likes/:id",
     method: "POST",
     schema_name: "idSchema",
-    request_data: "body",
+    request_data: "params",
     uniques: [
       {
-        property: "postId",
+        property: "id",
         table: "posts",
         must_not_exist: false,
         must_not_exist_status_code: STATUS_CODE.NOT_FOUND,
