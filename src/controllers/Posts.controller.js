@@ -31,22 +31,30 @@ const postUrl = async (req, res) => {
 
 const getPosts = async (req, res) => {
   try {
-    const filter = req.params.id;
+    let filter;
+    let type;
     let resultPosts;
-    let resultLikes;
     let likesHashtable = {};
-    
+    const resultLikes = await likesRepository.getLikes();
+
+    if(req.params.id) {
+      filter = req.params.id;
+      type = "user";
+    }
+
+    if(req.params.hashtag) {
+      filter = req.params.hashtag;
+      type = "hashtag";
+    }
+
     if(filter) {
-      resultPosts = await postsRepository.getPosts(filter);
-      resultLikes = await likesRepository.getLikes(filter);
+      resultPosts = await postsRepository.getPosts(filter, type);
     } else {
       resultPosts = await postsRepository.getPosts();
-      resultLikes = await likesRepository.getLikes();
     }
 
     resultLikes.rows.forEach(like => {
-      const element = like.postId;
-      likesHashtable[element] = like.likedBy;
+      likesHashtable[like.postId] = like.likedBy;
     });
 
     const result = resultPosts.rows.map(post => {

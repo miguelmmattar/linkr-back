@@ -16,11 +16,40 @@ async function postUrl({ url, description, userId }) {
   return insert.rows[0].id;
 }
 
-const getPosts = (id) => {
-  let filter = "";
+const getPosts = (info, type) => {
+  let filter;
 
-  if(id) {
-    filter = `WHERE users.id = ${id}`;
+  if(info && type === "user") {
+    filter = `WHERE users.id = $1`;
+  }
+
+  if(info && type === "hashtag") {
+    filter = `WHERE hashtags.hashtag = $1`;
+    info = "#" + info;
+  }
+
+  if(filter) {
+    return connection.query(`
+        SELECT 
+            posts.id,
+            posts.url AS link,
+            posts.description,
+            json_build_object('id', users.id,'name', users.name, 'picture', "userPicture".url) AS user,
+            posts."createdAt"
+        FROM 
+            posts
+        JOIN users
+            ON users.id = posts."userId"
+        JOIN "userPicture"
+            ON users.id = "userPicture"."userId"
+        JOIN "postsHashtags"
+            ON "postsHashtags"."postId" = posts.id
+        JOIN hashtags
+            ON hashtags.id = "postsHashtags"."hashtagId"
+        ${filter}
+        ORDER BY "createdAt" DESC
+        LIMIT 20;
+    `,[info]);
   }
 
   return connection.query(`
@@ -36,11 +65,16 @@ const getPosts = (id) => {
             ON users.id = posts."userId"
         JOIN "userPicture"
             ON users.id = "userPicture"."userId"
-        ${filter}
+        JOIN "postsHashtags"
+            ON "postsHashtags"."postId" = posts.id
+        JOIN hashtags
+            ON hashtags.id = "postsHashtags"."hashtagId"
+        
         ORDER BY "createdAt" DESC
         LIMIT 20;
     `);
-};
+  
+}
 
 function getPostById(id) {
   return connection.query(`SELECT "userId" FROM posts WHERE id=$1;`, [id]);
