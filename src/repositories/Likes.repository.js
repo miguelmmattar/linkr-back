@@ -16,7 +16,13 @@ function deleteLike({ postId, userId }) {
   );
 }
 
-function getLikes() {
+function getLikes(id) {
+  let filter = "";
+
+  if(id) {
+    filter = `WHERE posts."userId" = ${id}`;
+  }
+
   return connection.query(
     `SELECT 
         posts.id AS "postId",
@@ -28,8 +34,8 @@ function getLikes() {
         ON likes."postId" = posts.id
     LEFT JOIN users
         ON likes."userId" = users.id
+    ${filter}
     GROUP BY posts.id
-    
     ORDER BY posts."createdAt" DESC;`
   );
 }
