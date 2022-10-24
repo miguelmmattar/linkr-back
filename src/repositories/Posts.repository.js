@@ -17,7 +17,7 @@ async function postUrl({ url, description, userId }) {
 }
 
 const getPosts = (info, type) => {
-  let filter;
+  let filter = false;
 
   if (info && type === "user") {
     filter = `WHERE users.id = $1`;
@@ -39,13 +39,13 @@ const getPosts = (info, type) => {
             posts."createdAt"
         FROM 
             posts
-        JOIN users
+        LEFT JOIN users
             ON users.id = posts."userId"
-        JOIN "userPicture"
+        LEFT JOIN "userPicture"
             ON users.id = "userPicture"."userId"
-        JOIN "postsHashtags"
+        LEFT JOIN "postsHashtags"
             ON "postsHashtags"."postId" = posts.id
-        JOIN hashtags
+        LEFT JOIN hashtags
             ON hashtags.id = "postsHashtags"."hashtagId"
         ${filter}
         ORDER BY "createdAt" DESC
@@ -64,15 +64,14 @@ const getPosts = (info, type) => {
             posts."createdAt"
         FROM 
             posts
-        JOIN users
+        LEFT JOIN users
             ON users.id = posts."userId"
-        JOIN "userPicture"
+        LEFT JOIN "userPicture"
             ON users.id = "userPicture"."userId"
-        JOIN "postsHashtags"
+        LEFT JOIN "postsHashtags"
             ON "postsHashtags"."postId" = posts.id
-        JOIN hashtags
+        LEFT JOIN hashtags
             ON hashtags.id = "postsHashtags"."hashtagId"
-        
         ORDER BY "createdAt" DESC
         LIMIT 20;
     `);
