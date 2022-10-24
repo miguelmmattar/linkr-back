@@ -13,6 +13,7 @@ const propertiesToSanitize = [
   "authorization",
   "url",
   "userPicture",
+  "searchString",
 ];
 
 function HTMLSanitizer(request, response, next) {
