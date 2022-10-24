@@ -35,10 +35,9 @@ const schemas = {
     url: Joi.string().uri().required(),
     description: Joi.string(),
   }),
-  
+
   updatePostSchema: Joi.object({
     id: Joi.number().integer().required(),
-    url: Joi.string().uri().required(),
     description: Joi.string(),
   }),
 };
