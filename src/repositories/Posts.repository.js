@@ -19,17 +19,18 @@ async function postUrl({ url, description, userId }) {
 const getPosts = (info, type) => {
   let filter = false;
 
-  if(info && type === "user") {
+  if (info && type === "user") {
     filter = `WHERE users.id = $1`;
   }
 
-  if(info && type === "hashtag") {
+  if (info && type === "hashtag") {
     filter = `WHERE hashtags.hashtag = $1`;
     info = "#" + info;
   }
 
-  if(filter) {
-    return connection.query(`
+  if (filter) {
+    return connection.query(
+      `
         SELECT 
             posts.id,
             posts.url AS link,
@@ -49,7 +50,9 @@ const getPosts = (info, type) => {
         ${filter}
         ORDER BY "createdAt" DESC
         LIMIT 20;
-    `,[info]);
+    `,
+      [info]
+    );
   }
 
   return connection.query(`
@@ -72,17 +75,16 @@ const getPosts = (info, type) => {
         ORDER BY "createdAt" DESC
         LIMIT 20;
     `);
-  
-}
+};
 
 function getPostById(id) {
   return connection.query(`SELECT "userId" FROM posts WHERE id=$1;`, [id]);
 }
 
-function updatePost({ url, description, userId, id }) {
+function updatePost({ description, userId, id }) {
   return connection.query(
-    `UPDATE ${TABLE} SET url=$1, description=$2, "userId"=$3  WHERE id=$4;`,
-    [url, description, userId, id]
+    `UPDATE ${TABLE} SET  description=$1, "userId"=$2  WHERE id=$3;`,
+    [description, userId, id]
   );
 }
 

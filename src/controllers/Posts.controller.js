@@ -126,14 +126,13 @@ const deletePost = async (request, response) => {
 };
 
 const updatePost = async (request, response) => {
-  const { url, description, id } = response.locals.safeData;
+  const { description, id } = response.locals.safeData;
   const { userId } = response.locals;
   const hashtagsArray = response.locals.hashtags;
   const TABLE_HASHTAG = "hashtags";
 
   try {
     const updateQuery = await postsRepository.updatePost({
-      url,
       description,
       userId,
       id,
