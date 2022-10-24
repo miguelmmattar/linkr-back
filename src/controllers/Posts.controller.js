@@ -13,6 +13,12 @@ const postUrl = async (req, res) => {
 
   try {
     const id = await postsRepository.postUrl({ url, description, userId });
+
+    if (description === undefined) {
+      res.sendStatus(STATUS_CODE.CREATED);
+      return;
+    }
+
     if (hashtagsArray.length > 0) {
       for (let i = 0; i < hashtagsArray.length; i++) {
         let hashtagId = await connection.query(
@@ -37,30 +43,30 @@ const getPosts = async (req, res) => {
     let likesHashtable = {};
     const resultLikes = await likesRepository.getLikes();
 
-    if(req.params.id) {
+    if (req.params.id) {
       filter = req.params.id;
       type = "user";
     }
 
-    if(req.params.hashtag) {
+    if (req.params.hashtag) {
       filter = req.params.hashtag;
       type = "hashtag";
     }
 
-    if(filter) {
+    if (filter) {
       resultPosts = await postsRepository.getPosts(filter, type);
     } else {
       resultPosts = await postsRepository.getPosts();
     }
 
-    resultLikes.rows.forEach(like => {
+    resultLikes.rows.forEach((like) => {
       likesHashtable[like.postId] = like.likedBy;
     });
 
-    const result = resultPosts.rows.map(post => {
-        const postId = (post.id);
-        return {...post, likedBy: likesHashtable[postId]};
-      });
+    const result = resultPosts.rows.map((post) => {
+      const postId = post.id;
+      return { ...post, likedBy: likesHashtable[postId] };
+    });
 
     const posts = await getMetadatas(result);
 
@@ -77,8 +83,9 @@ const getMetadatas = async (result) => {
         const metadata = await urlMetadata(post.link);
         let image = metadata.image;
 
-        if(!image.includes('http')) {
-          image = "https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/No-Image-Placeholder.svg/330px-No-Image-Placeholder.svg.png?20200912122019";
+        if (!image.includes("http")) {
+          image =
+            "https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/No-Image-Placeholder.svg/330px-No-Image-Placeholder.svg.png?20200912122019";
         }
 
         const info = {

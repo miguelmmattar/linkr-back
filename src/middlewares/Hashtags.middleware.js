@@ -7,10 +7,16 @@ import { STATUS_CODE } from "../enums/statusCode.js";
 async function getHashtags(req, res, next) {
   const { description } = req.body;
 
+  if (description === undefined) {
+    next();
+    return;
+  }
+
   const getHashtagsFromDescription = description
     .split(" ")
     .filter((str) => str.includes("#"));
   const hashtags = [];
+
   try {
     for (let i = 0; i < getHashtagsFromDescription.length; i++) {
       let string = getHashtagsFromDescription[i];
