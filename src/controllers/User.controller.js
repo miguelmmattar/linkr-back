@@ -1,13 +1,18 @@
 import * as usersRepository from "../repositories/Users.repository.js";
+import { STATUS_CODE } from "../enums/statusCode.js";
 
 const search = async (req, res) => {
     const { searchString } = res.locals.params;    
-    
-   const users = await usersRepository.getUsersByNamePart({ searchString })
-    
+    let users;
 
+    try {
+        users = await usersRepository.getUsersByNamePart({ searchString })
+    } catch (error) {
+        console.log(error);
+        return res.sendStatus(STATUS_CODE.SERVER_ERROR);
+    }
 
-    res.status(200).send(users.rows);
+    res.status(STATUS_CODE.OK).send(users.rows);
 }
 
 export { search }

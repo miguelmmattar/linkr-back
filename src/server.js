@@ -7,7 +7,6 @@ import postsRouter from "./routers/Posts.routes.js";
 import trendingRouter from "./routers/Trending.routes.js";
 import userRouter from "./routers/User.routes.js";
 
-
 dotenv.config();
 
 const server = express();
@@ -20,6 +19,10 @@ server
   .use(postsRouter)
   .use(trendingRouter)
   .use(userRouter);
+
+server.get("/", (req, res) => {
+  return res.sendStatus(200);
+});
 
 server.listen(process.env.PORT, () =>
   console.log("Listening on port " + process.env.PORT)
