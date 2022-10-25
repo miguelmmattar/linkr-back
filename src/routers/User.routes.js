@@ -8,5 +8,6 @@ const router = express.Router();
 
 
 router.get("/search/:searchString", HTMLSanitizer, authorization, userController.search);
+router.get("/follows", HTMLSanitizer, authorization, userController.getFollows);
 
 export default router;
