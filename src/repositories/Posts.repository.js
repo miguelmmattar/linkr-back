@@ -16,7 +16,7 @@ async function postUrl({ url, description, userId }) {
   return insert.rows[0].id;
 }
 
-const getPosts = (info, type) => {
+const getPosts = (info, type, userId) => {
   let filter = false;
 
   if (info && type === "user") {
@@ -72,9 +72,13 @@ const getPosts = (info, type) => {
             ON "postsHashtags"."postId" = posts.id
         LEFT JOIN hashtags
             ON hashtags.id = "postsHashtags"."hashtagId"
+        LEFT JOIN follows
+            ON follows.follower = users.id 
+        WHERE 
+            follows.follower = $1
         ORDER BY "createdAt" DESC
         LIMIT 20;
-    `);
+    `,[userId]);
 };
 
 function getPostById(id) {

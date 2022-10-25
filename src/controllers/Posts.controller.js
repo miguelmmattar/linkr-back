@@ -36,10 +36,11 @@ const postUrl = async (req, res) => {
 };
 
 const getPosts = async (req, res) => {
+  const { userId } = res.locals;
+  
   try {
     let filter;
     let type;
-    let resultPosts;
     let likesHashtable = {};
     const resultLikes = await likesRepository.getLikes();
 
@@ -53,11 +54,8 @@ const getPosts = async (req, res) => {
       type = "hashtag";
     }
 
-    if (filter) {
-      resultPosts = await postsRepository.getPosts(filter, type);
-    } else {
-      resultPosts = await postsRepository.getPosts();
-    }
+    
+    const resultPosts = await postsRepository.getPosts(filter, type, userId);
 
     resultLikes.rows.forEach((like) => {
       likesHashtable[like.postId] = like.likedBy;
