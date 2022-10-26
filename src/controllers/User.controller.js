@@ -1,6 +1,5 @@
 import * as usersRepository from "../repositories/Users.repository.js";
 import { STATUS_CODE } from "../enums/statusCode.js";
-import connection from "../database/Postgres.js";
 
 const search = async (req, res) => {
     const { searchString } = res.locals.params;    
