@@ -67,7 +67,7 @@ const getPosts = async (req, res) => {
     });
 
     const posts = await getMetadatas(result);
-
+    console.log(posts)
     res.status(200).send(posts);
   } catch (error) {
     return res.status(500).send(error.message);

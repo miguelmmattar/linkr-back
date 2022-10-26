@@ -18,7 +18,7 @@ async function postUrl({ url, description, userId }) {
 
 const getPosts = (info, type, userId) => {
   let filter = false;
-
+  console.log(userId)
   if (info && type === "user") {
     filter = `WHERE users.id = $1`;
   }
@@ -75,10 +75,11 @@ const getPosts = (info, type, userId) => {
         LEFT JOIN follows
             ON follows.follower = users.id 
         WHERE 
-            follows.follower = $1
+            follows.follower = $1 OR posts."userId"=$1
         ORDER BY "createdAt" DESC
         LIMIT 20;
     `,[userId]);
+    
 };
 
 function getPostById(id) {
