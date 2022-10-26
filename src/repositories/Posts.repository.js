@@ -75,7 +75,7 @@ const getPosts = (info, type, userId) => {
         LEFT JOIN follows
             ON follows.follower = users.id 
         WHERE 
-            follows.follower = $1
+            follows.follower = $1 OR posts."userId" = $1
         ORDER BY "createdAt" DESC
         LIMIT 20;
     `,[userId]);
