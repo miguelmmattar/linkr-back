@@ -44,6 +44,7 @@ const getPosts = async (req, res) => {
     let type;
     let likesHashtable = {};
     let user
+    const { userId } = res.locals;
     const resultLikes = await likesRepository.getLikes();
 
     if (req.params.id) {
