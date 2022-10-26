@@ -86,24 +86,35 @@ const getPosts = async (req, res) => {
 
 const getMetadatas = async (result) => {
   try {
+    let info;
     const posts = await Promise.all(
       result.map(async (post) => {
-        const metadata = await urlMetadata(post.link);
-        let image = metadata.image;
+        try {
+          const metadata = await urlMetadata(post.link);
 
-        if (!image.includes("http")) {
-          image =
-            "https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/No-Image-Placeholder.svg/330px-No-Image-Placeholder.svg.png?20200912122019";
-        }
+          let image = metadata.image;
 
-        const info = {
-          url: metadata.url,
-          title: metadata.title,
-          description: metadata.description,
-          image: image,
-        };
+          if (!image.includes("http")) {
+            image =
+              "https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/No-Image-Placeholder.svg/330px-No-Image-Placeholder.svg.png?20200912122019";
+          }
 
-        return { ...post, link: info };
+          info = {
+            url: metadata.url,
+            title: metadata.title,
+            description: metadata.description,
+            image: image
+          };
+      } catch(error) {
+          info = {
+            url: "",
+            title: "Borken Link",
+            description: "We colud not process this link adress",
+            image: "https://www.med.unc.edu/webguide/wp-content/uploads/sites/419/2019/10/broken_link_AdobeStock_121742806.jpg"
+          };
+      }
+        
+      return { ...post, link: info };
       })
     );
 
