@@ -39,7 +39,7 @@ const signUp = async (req, res) => {
 };
 
 const signIn = async (req, res) => {
-    if (!res.locals.body) return res.sendStatus(STATUS_CODE.BAD_REQUEST)
+    if (!res.locals.body) return res.sendStatus(STATUS_CODE.BAD_REQUEST);
     const { password } = res.locals.body;
     let { email } = res.locals.body;
     email = email.toLowerCase()
