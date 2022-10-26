@@ -13,6 +13,7 @@ const search = async (req, res) => {
         console.log(error);
         return res.sendStatus(STATUS_CODE.SERVER_ERROR);
     }
+
     return res.status(STATUS_CODE.OK).send(users.rows);
 };
 
@@ -54,7 +55,7 @@ const unfollow = async (req, res) => {
          console.log(error);
          return res.sendStatus(STATUS_CODE.SERVER_ERROR);
      }
-     
+
      if(alreadyFollow.rowCount === 0) {
          return res.sendStatus(STATUS_CODE.NOT_FOUND);
      }
