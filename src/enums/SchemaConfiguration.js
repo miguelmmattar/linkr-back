@@ -120,6 +120,12 @@ const schemas_configuration = Object.freeze([
       },
     ],
   },
+  {
+    path: "/follow",
+    method: "POST",
+    schema_name: "newFollow",
+    request_data: "body",
+  },
 ]);
 
 export { schemas_configuration };

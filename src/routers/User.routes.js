@@ -8,5 +8,8 @@ const router = express.Router();
 
 
 router.get("/search/:searchString", HTMLSanitizer, authorization, userController.search);
+router.post("/follow", schemaValidation, HTMLSanitizer, authorization, userController.newFollow);
+// router.delete("/unfollow",HTMLSanitizer, authorization, userController.unfollow);
+
 
 export default router;
