@@ -41,7 +41,29 @@ const getUserDataByIds = (id, userId) => {
             ON users.id = follows.followed AND follows.follower = $2
         WHERE users.id = $1 
     ;`, [id, userId])
-}
+};
+
+const getUserFollows = (userId) => {
+    return connection.query(`
+        SELECT
+            followed   
+        FROM 
+            follows
+        WHERE
+            follower = $1    
+    ;`, [userId]);
+};
+
+const getUserFollowers = (userId) => {
+    return connection.query(`
+        SELECT
+            follower   
+        FROM 
+            follows
+        WHERE
+            followed = $1    
+    ;`, [userId]);
+};
 
 
 export { 
@@ -49,5 +71,7 @@ export {
     insertNewFollower,
     getFollowByIds,
     deleteFollow,
-    getUserDataByIds
+    getUserDataByIds,
+    getUserFollows,
+    getUserFollowers
 }

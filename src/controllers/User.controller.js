@@ -69,4 +69,24 @@ const unfollow = async (req, res) => {
     return res.sendStatus(STATUS_CODE.NO_CONTENT);
 };
 
-export { search, newFollow, unfollow }
+const getFollows = async (req, res) => {
+    const { userId } = res.locals;
+
+    try {
+        const follows = await usersRepository.getUserFollows(userId);
+        const followers = await usersRepository.getUserFollowers(userId);
+
+        const result = {
+            following: follows.rows,
+            followers: followers.rows
+        };
+
+        res.status(STATUS_CODE.OK).send(result); 
+    } catch (error) {
+        console.log(error);
+        return res.sendStatus(STATUS_CODE.SERVER_ERROR);
+    }   
+}
+
+
+export { search, newFollow, unfollow, getFollows }
