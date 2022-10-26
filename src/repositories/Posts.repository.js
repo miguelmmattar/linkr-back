@@ -56,7 +56,7 @@ const getPosts = (info, type, userId) => {
   }
 
   return connection.query(`
-        SELECT 
+        SELECT
             posts.id,
             posts.url AS link,
             posts.description,
@@ -73,9 +73,10 @@ const getPosts = (info, type, userId) => {
         LEFT JOIN hashtags
             ON hashtags.id = "postsHashtags"."hashtagId"
         LEFT JOIN follows
-            ON follows.follower = users.id 
+            ON follows.followed = users.id
         WHERE 
-            follows.follower = $1 OR posts."userId"=$1
+            follows.follower = $1 OR posts."userId" = $1
+        GROUP BY posts.id, users.id, "userPicture".id, "postsHashtags"."postId"
         ORDER BY "createdAt" DESC
         LIMIT 20;
     `,[userId]);
