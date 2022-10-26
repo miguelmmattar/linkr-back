@@ -23,6 +23,12 @@ const insertNewFollower = ({ userId, id }) => {
     ;`, [userId, id]);
 };
 
+const deleteFollow = ({ userId, id }) => {
+    return connection.query(`
+    DELETE FROM follows 
+    WHERE follower = $1 AND followed = $2
+    ;`, [userId, id])
+};
 
 
-export { getUsersByNamePart, insertNewFollower, getFollowByIds }
+export { getUsersByNamePart, insertNewFollower, getFollowByIds, deleteFollow }

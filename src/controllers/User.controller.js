@@ -27,9 +27,11 @@ const newFollow = async (req, res) => {
         console.log(error);
         return res.sendStatus(STATUS_CODE.SERVER_ERROR);
     }
+    
     if(alreadyFollow.rowCount > 0) {
         return res.sendStatus(STATUS_CODE.CONFLICT);
     }
+
     try {
         await usersRepository.insertNewFollower({ userId, id });
     } catch (error) {
@@ -40,4 +42,31 @@ const newFollow = async (req, res) => {
     return res.sendStatus(200);
 };
 
-export { search, newFollow }
+const unfollow = async (req, res) => {
+    if (!res.locals.body) return res.sendStatus(STATUS_CODE.BAD_REQUEST)
+    const { userId, body } = res.locals;
+    const { id } = body;
+    let alreadyFollow;
+
+    try {
+        alreadyFollow = await usersRepository.getFollowByIds({ userId, id });
+     } catch (error) {
+         console.log(error);
+         return res.sendStatus(STATUS_CODE.SERVER_ERROR);
+     }
+     
+     if(alreadyFollow.rowCount === 0) {
+         return res.sendStatus(STATUS_CODE.NOT_FOUND);
+     }
+
+    try {
+        await usersRepository.deleteFollow({ userId, id });
+    } catch (error) {
+        console.log(error);
+        return res.sendStatus(STATUS_CODE.SERVER_ERROR);
+    }
+
+    return res.sendStatus(STATUS_CODE.NO_CONTENT);
+};
+
+export { search, newFollow, unfollow }

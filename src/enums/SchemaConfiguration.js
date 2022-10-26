@@ -123,7 +123,13 @@ const schemas_configuration = Object.freeze([
   {
     path: "/follow",
     method: "POST",
-    schema_name: "newFollow",
+    schema_name: "idSchema",
+    request_data: "body",
+  },
+  {
+    path: "/unfollow",
+    method: "DELETE",
+    schema_name: "idSchema",
     request_data: "body",
   },
 ]);

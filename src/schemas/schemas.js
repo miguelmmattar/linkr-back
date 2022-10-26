@@ -40,9 +40,6 @@ const schemas = {
     id: Joi.number().integer().required(),
     description: Joi.string(),
   }),
-  newFollow: Joi.object({
-    id: Joi.number().integer().required(),
-  }),
 };
 
 export { schemas };
