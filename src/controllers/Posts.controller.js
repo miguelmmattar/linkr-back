@@ -4,6 +4,7 @@ import * as postsRepository from "../repositories/Posts.repository.js";
 import * as likesRepository from "../repositories/Likes.repository.js";
 import urlMetadata from "url-metadata";
 import * as hashtagRepository from "../repositories/Hashtags.repository.js";
+import * as usersRepository from "../repositories/Users.repository.js";
 
 const postUrl = async (req, res) => {
   const { url, description } = req.body;
@@ -42,6 +43,8 @@ const getPosts = async (req, res) => {
     let filter;
     let type;
     let likesHashtable = {};
+    let user
+    const { userId } = res.locals;
     const resultLikes = await likesRepository.getLikes();
 
     if (req.params.id) {
@@ -68,9 +71,16 @@ const getPosts = async (req, res) => {
 
     const posts = await getMetadatas(result);
 
+    if(type === "user") {
+      user = await usersRepository.getUserDataByIds(filter, userId);
+      user = user.rows[0]
+      return res.status(200).send({ user, posts });
+    }
+    
     res.status(200).send(posts);
   } catch (error) {
-    return res.status(500).send(error.message);
+    console.log(error)
+    return res.sendStatus(500)
   }
 };
 
