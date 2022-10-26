@@ -44,7 +44,6 @@ const getPosts = async (req, res) => {
     let type;
     let likesHashtable = {};
     let user
-    const { userId } = res.locals;
     const resultLikes = await likesRepository.getLikes();
 
     if (req.params.id) {
@@ -71,11 +70,13 @@ const getPosts = async (req, res) => {
 
     const posts = await getMetadatas(result);
 
-
-    user = await usersRepository.getUserDataById(filter, userId);
-    user = user.rows[0]
-
-    res.status(200).send({ user, posts });
+    if(type === "user") {
+      user = await usersRepository.getUserDataById(filter, userId);
+      user = user.rows[0]
+      return res.status(200).send({ user, posts });
+    }
+    
+    res.status(200).send(posts);
   } catch (error) {
     console.log(error)
     return res.sendStatus(500)
