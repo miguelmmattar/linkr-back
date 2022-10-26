@@ -72,7 +72,7 @@ const getPosts = async (req, res) => {
     const posts = await getMetadatas(result);
 
     if(type === "user") {
-      user = await usersRepository.getUserDataById(filter, userId);
+      user = await usersRepository.getUserDataByIds(filter, userId);
       user = user.rows[0]
       return res.status(200).send({ user, posts });
     }

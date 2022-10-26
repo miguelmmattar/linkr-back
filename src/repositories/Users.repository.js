@@ -31,7 +31,7 @@ const deleteFollow = ({ userId, id }) => {
     ;`, [userId, id])
 };
 
-const getUserDataById = (id, userId) => {
+const getUserDataByIds = (id, userId) => {
     return connection.query(`
         SELECT users.id, users.name, "userPicture".url AS picture, follows."createdAt" as "followedAt"
         FROM users 
@@ -49,5 +49,5 @@ export {
     insertNewFollower,
     getFollowByIds,
     deleteFollow,
-    getUserDataById
+    getUserDataByIds
 }
