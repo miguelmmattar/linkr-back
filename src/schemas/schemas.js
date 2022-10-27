@@ -5,7 +5,7 @@ const JoiPassword = Joi.extend(joiPasswordExtendCore);
 
 const schemas = {
   newUserSchema: Joi.object({
-    name: Joi.string().min(1).required(),
+    name: Joi.string().min(1).max(15).required(),
     email: Joi.string().min(1).email().required(),
     password: JoiPassword.string()
       .min(8)
