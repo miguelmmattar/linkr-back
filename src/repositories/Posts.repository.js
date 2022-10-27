@@ -16,9 +16,9 @@ async function postUrl({ url, description, userId }) {
   return insert.rows[0].id;
 }
 
-const getPosts = (info, type, userId) => {
+const getPosts = async (info, type, userId) => {
   let filter = false;
-  console.log(userId)
+  console.log(userId);
   if (info && type === "user") {
     filter = `WHERE users.id = $1`;
   }
@@ -55,7 +55,8 @@ const getPosts = (info, type, userId) => {
     );
   }
 
-  return connection.query(`
+  let timelinePosts = await connection.query(
+    `
         SELECT
             posts.id,
             posts.url AS link,
@@ -79,8 +80,47 @@ const getPosts = (info, type, userId) => {
         GROUP BY posts.id, users.id, "userPicture".id, "postsHashtags"."postId"
         ORDER BY "createdAt" DESC
         LIMIT 20;
-    `,[userId]);
-    
+    `,
+    [userId]
+  );
+  timelinePosts = timelinePosts.rows;
+
+  let reposts = await connection.query(
+    `
+        SELECT     
+            reposts.id,
+            posts.id AS "postId",
+            reposts."userId" AS "repostUserId",
+            u2.name AS "repostUserName",
+            posts.url AS link,
+            posts.description,
+            json_build_object('id', u1.id,'name', u1.name, 'picture', "userPicture".url) AS user,
+            reposts."createdAt"
+        FROM 
+            posts
+        JOIN reposts 
+            ON posts.id = reposts."postId"
+        JOIN users u1 
+            ON u1.id = posts."userId"
+        JOIN users u2 
+            ON u2.id = reposts."userId"
+        JOIN "userPicture" 
+            ON posts."userId" = "userPicture"."userId"      
+        JOIN follows 
+            ON reposts."userId" = follows.followed
+        WHERE follows.follower = $1
+        ORDER BY "createdAt" DESC
+        LIMIT 20;    
+  `,
+    [userId]
+  );
+
+  reposts = reposts.rows;
+for (let i = 0; i < reposts.length; i++) {
+  timelinePosts.push(reposts[i])
+}
+  console.log(timelinePosts);
+  return timelinePosts;
 };
 
 function getPostById(id) {
