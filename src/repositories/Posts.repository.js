@@ -116,10 +116,13 @@ const getPosts = async (info, type, userId) => {
   );
 
   reposts = reposts.rows;
-for (let i = 0; i < reposts.length; i++) {
-  timelinePosts.push(reposts[i])
-}
-  console.log(timelinePosts);
+  for (let i = 0; i < reposts.length; i++) {
+    timelinePosts.push(reposts[i]);
+  }
+
+  timelinePosts.sort((x, y) => {
+    return y.createdAt - x.createdAt;
+  });
   return timelinePosts;
 };
 
