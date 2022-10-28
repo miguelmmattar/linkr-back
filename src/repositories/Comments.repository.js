@@ -6,7 +6,7 @@ function getPostCommentsById(id) {
   return connection.query(
     `
   SELECT 
-  comment.id,
+  comments.id,
   posts.url AS link,
   posts.description,
   json_build_object('id', users.id,'name', users.name, 'picture', "userPicture".url) AS user,
