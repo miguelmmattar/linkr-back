@@ -18,7 +18,6 @@ async function postUrl({ url, description, userId }) {
 
 const getPosts = async (info, type, userId) => {
   let filter = false;
-  console.log(userId);
   if (info && type === "user") {
     filter = `WHERE users.id = $1`;
   }
@@ -29,7 +28,7 @@ const getPosts = async (info, type, userId) => {
   }
 
   if (filter) {
-    return connection.query(
+    let filteredPosts = await connection.query(
       `
         SELECT 
             posts.id,
@@ -53,6 +52,8 @@ const getPosts = async (info, type, userId) => {
     `,
       [info]
     );
+    filteredPosts = filteredPosts.rows;
+    return filteredPosts;
   }
 
   let timelinePosts = await connection.query(
@@ -83,7 +84,10 @@ const getPosts = async (info, type, userId) => {
     `,
     [userId]
   );
-  timelinePosts = timelinePosts.rows;
+
+  timelinePosts = timelinePosts.rows.map((value) => {
+    return { ...value, isRepost: false };
+  });
 
   let reposts = await connection.query(
     `
@@ -108,14 +112,17 @@ const getPosts = async (info, type, userId) => {
             ON posts."userId" = "userPicture"."userId"      
         JOIN follows 
             ON reposts."userId" = follows.followed
-        WHERE follows.follower = $1
+        WHERE follows.follower = $1 OR reposts."userId" = $1
+        GROUP BY reposts.id, posts.id, u2.name, u1.name, u1.id, "userPicture".url
         ORDER BY "createdAt" DESC
         LIMIT 20;    
   `,
     [userId]
   );
 
-  reposts = reposts.rows;
+  reposts = reposts.rows.map((value) => {
+    return { ...value, isRepost: true };
+  });
   for (let i = 0; i < reposts.length; i++) {
     timelinePosts.push(reposts[i]);
   }
@@ -123,6 +130,7 @@ const getPosts = async (info, type, userId) => {
   timelinePosts.sort((x, y) => {
     return y.createdAt - x.createdAt;
   });
+
   return timelinePosts;
 };
 

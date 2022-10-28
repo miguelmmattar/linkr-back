@@ -6,6 +6,7 @@ import authRouter from "./routers/Auth.routes.js";
 import postsRouter from "./routers/Posts.routes.js";
 import trendingRouter from "./routers/Trending.routes.js";
 import userRouter from "./routers/User.routes.js";
+import repostsRouter from "./routers/Reposts.routes.js";
 
 dotenv.config();
 
@@ -17,6 +18,7 @@ server
   .use(likeRouter)
   .use(authRouter)
   .use(postsRouter)
+  .use(repostsRouter)
   .use(trendingRouter)
   .use(userRouter);
 

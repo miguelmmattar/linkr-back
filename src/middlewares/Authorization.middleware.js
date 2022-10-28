@@ -18,6 +18,7 @@ const authorization = async (req, res, next) => {
   try {
     userId = jwt.verify(token, process.env.TOKEN_SECRET).userId;
   } catch (error) {
+    console.log("é aqui");
     return res.sendStatus(STATUS_CODE.UNAUTHORIZED);
   }
 
