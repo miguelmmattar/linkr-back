@@ -33,12 +33,12 @@ const schemas = {
 
   postSchema: Joi.object({
     url: Joi.string().uri().required(),
-    description: Joi.string(),
+    description: Joi.string().allow(''),
   }),
 
   updatePostSchema: Joi.object({
     id: Joi.number().integer().required(),
-    description: Joi.string(),
+    description: Joi.string().allow('')
   }),
 };
 
