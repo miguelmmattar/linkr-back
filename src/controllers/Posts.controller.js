@@ -38,13 +38,13 @@ const postUrl = async (req, res) => {
 
 const getPosts = async (req, res) => {
   const { userId } = res.locals;
-
+  const offset = req.query.offset;
+  
   try {
     let filter;
     let type;
     let likesHashtable = {};
     let user;
-    const { userId } = res.locals;
     const resultLikes = await likesRepository.getLikes();
 
     if (req.params.id) {
@@ -56,13 +56,13 @@ const getPosts = async (req, res) => {
       filter = req.params.hashtag;
       type = "hashtag";
     }
-
-    const resultPosts = await postsRepository.getPosts(filter, type, userId);
+    
+    const resultPosts = await postsRepository.getPosts(filter, type, userId, offset);
 
     resultLikes.rows.forEach((like) => {
       likesHashtable[like.postId] = like.likedBy;
     });
-    console.log(resultPosts);
+    
     const result = resultPosts.map((post) => {
       const postId = post.id;
       return { ...post, likedBy: likesHashtable[postId] };
@@ -107,7 +107,7 @@ const getMetadatas = async (result) => {
         } catch (error) {
           info = {
             url: "",
-            title: "Borken Link",
+            title: "Broken Link",
             description: "We colud not process this link adress",
             image:
               "https://www.med.unc.edu/webguide/wp-content/uploads/sites/419/2019/10/broken_link_AdobeStock_121742806.jpg",
