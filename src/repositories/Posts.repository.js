@@ -18,13 +18,12 @@ async function postUrl({ url, description, userId }) {
 
 const getPosts = (info, type, userId, offset) => {
   let filter = false;
-
   if (info && type === "user") {
-    filter = `WHERE users.id = $1`;
+    filter = `WHERE users.id = $1 AND extract(epoch FROM posts."createdAt") < $2`;
   }
 
   if (info && type === "hashtag") {
-    filter = `WHERE hashtags.hashtag = $1`;
+    filter = `WHERE hashtags.hashtag = $1 AND extract(epoch FROM posts."createdAt") < $2`;
     info = "#" + info;
   }
 
@@ -36,7 +35,7 @@ const getPosts = (info, type, userId, offset) => {
             posts.url AS link,
             posts.description,
             json_build_object('id', users.id,'name', users.name, 'picture', "userPicture".url) AS user,
-            posts."createdAt"
+            extract(epoch FROM posts."createdAt") AS "createdAt"
         FROM 
             posts
         LEFT JOIN users
@@ -49,8 +48,7 @@ const getPosts = (info, type, userId, offset) => {
             ON hashtags.id = "postsHashtags"."hashtagId"
         ${filter}
         ORDER BY "createdAt" DESC
-        LIMIT 10
-        OFFSET $2;
+        LIMIT 10;
     `,[info, offset]);
   }
 
@@ -60,7 +58,7 @@ const getPosts = (info, type, userId, offset) => {
             posts.url AS link,
             posts.description,
             json_build_object('id', users.id,'name', users.name, 'picture', "userPicture".url) AS user,
-            posts."createdAt"
+            extract(epoch FROM posts."createdAt") AS "createdAt"
         FROM 
             posts
         LEFT JOIN users
@@ -74,11 +72,10 @@ const getPosts = (info, type, userId, offset) => {
         LEFT JOIN follows
             ON follows.followed = users.id
         WHERE 
-            follows.follower = $1 OR posts."userId" = $1
+            (follows.follower = $1 OR posts."userId" = $1) AND extract(epoch FROM posts."createdAt") < $2
         GROUP BY posts.id, users.id, "userPicture".id, "postsHashtags"."postId"
         ORDER BY "createdAt" DESC
-        LIMIT 10
-        OFFSET $2;
+        LIMIT 10;
     `,[userId, offset]);
 }
 

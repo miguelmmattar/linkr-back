@@ -38,7 +38,7 @@ const postUrl = async (req, res) => {
 
 const getPosts = async (req, res) => {
   const { userId } = res.locals;
-  const offset = parseInt(req.query.offset);
+  const offset = req.query.offset;
   
   try {
     let filter;
