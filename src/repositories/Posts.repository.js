@@ -91,31 +91,25 @@ const getPosts = async (info, type, userId) => {
 
   let reposts = await connection.query(
     `
-        SELECT     
-            reposts.id,
-            posts.id AS "postId",
-            reposts."userId" AS "repostUserId",
-            u2.name AS "repostUserName",
-            posts.url AS link,
-            posts.description,
-            json_build_object('id', u1.id,'name', u1.name, 'picture', "userPicture".url) AS user,
-            reposts."createdAt"
-        FROM 
-            posts
-        JOIN reposts 
-            ON posts.id = reposts."postId"
-        JOIN users u1 
-            ON u1.id = posts."userId"
-        JOIN users u2 
-            ON u2.id = reposts."userId"
-        JOIN "userPicture" 
-            ON posts."userId" = "userPicture"."userId"      
-        JOIN follows 
-            ON reposts."userId" = follows.followed
+    SELECT     
+    posts.id AS id,
+    reposts.id AS "repostId",
+    reposts."userId" AS "repostUserId",
+    u2.name AS "repostUserName",
+    posts.url AS link,
+    posts.description,
+    json_build_object('id', u1.id,'name', u1.name, 'picture', "userPicture".url) AS user,
+    reposts."createdAt"
+       FROM posts
+      JOIN reposts ON posts.id = reposts."postId"
+        JOIN users u1 ON u1.id = posts."userId"
+        JOIN users u2 ON u2.id = reposts."userId"
+        JOIN "userPicture" ON posts."userId" = "userPicture"."userId"      
+         JOIN follows ON reposts."userId" = follows.followed
         WHERE follows.follower = $1 OR reposts."userId" = $1
         GROUP BY reposts.id, posts.id, u2.name, u1.name, u1.id, "userPicture".url
         ORDER BY "createdAt" DESC
-        LIMIT 20;    
+            LIMIT 20;   
   `,
     [userId]
   );

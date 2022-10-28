@@ -62,7 +62,7 @@ const getPosts = async (req, res) => {
     resultLikes.rows.forEach((like) => {
       likesHashtable[like.postId] = like.likedBy;
     });
-
+    console.log(resultPosts);
     const result = resultPosts.map((post) => {
       const postId = post.id;
       return { ...post, likedBy: likesHashtable[postId] };
