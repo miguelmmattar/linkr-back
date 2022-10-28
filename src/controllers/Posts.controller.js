@@ -62,24 +62,24 @@ const getPosts = async (req, res) => {
     resultLikes.rows.forEach((like) => {
       likesHashtable[like.postId] = like.likedBy;
     });
-
-    const result = resultPosts.rows.map((post) => {
+    
+    const result = resultPosts.map((post) => {
       const postId = post.id;
       return { ...post, likedBy: likesHashtable[postId] };
     });
 
     const posts = await getMetadatas(result);
 
-    if(type === "user") {
+    if (type === "user") {
       user = await usersRepository.getUserDataByIds(filter, userId);
-      user = user.rows[0]
+      user = user.rows[0];
       return res.status(200).send({ user, posts });
     }
-    
+
     res.status(200).send(posts);
   } catch (error) {
-    console.log(error)
-    return res.sendStatus(500)
+    console.log(error);
+    return res.sendStatus(500);
   }
 };
 
@@ -102,18 +102,19 @@ const getMetadatas = async (result) => {
             url: metadata.url,
             title: metadata.title,
             description: metadata.description,
-            image: image
+            image: image,
           };
-      } catch(error) {
+        } catch (error) {
           info = {
             url: "",
             title: "Broken Link",
             description: "We colud not process this link adress",
-            image: "https://www.med.unc.edu/webguide/wp-content/uploads/sites/419/2019/10/broken_link_AdobeStock_121742806.jpg"
+            image:
+              "https://www.med.unc.edu/webguide/wp-content/uploads/sites/419/2019/10/broken_link_AdobeStock_121742806.jpg",
           };
-      }
-        
-      return { ...post, link: info };
+        }
+
+        return { ...post, link: info };
       })
     );
 
