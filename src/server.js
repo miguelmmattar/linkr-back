@@ -7,6 +7,7 @@ import postsRouter from "./routers/Posts.routes.js";
 import trendingRouter from "./routers/Trending.routes.js";
 import userRouter from "./routers/User.routes.js";
 import repostsRouter from "./routers/Reposts.routes.js";
+import commentsRouter from "./routers/Comments.routes.js";
 
 dotenv.config();
 
@@ -20,7 +21,8 @@ server
   .use(postsRouter)
   .use(repostsRouter)
   .use(trendingRouter)
-  .use(userRouter);
+  .use(userRouter)
+  .use(commentsRouter);
 
 server.get("/", (req, res) => {
   return res.sendStatus(200);

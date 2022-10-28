@@ -132,6 +132,21 @@ const schemas_configuration = Object.freeze([
     schema_name: "idSchema",
     request_data: "body",
   },
+  {
+    path: "/comments",
+    method: "POST",
+    schema_name: "commentSchema",
+    request_data: "body",
+    uniques: [
+      {
+        property: "id",
+        table: "posts",
+        must_not_exist: false,
+        must_not_exist_status_code: STATUS_CODE.NOT_FOUND,
+        error_details: false,
+      },
+    ],
+  },
 ]);
 
 export { schemas_configuration };

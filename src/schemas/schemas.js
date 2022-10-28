@@ -40,10 +40,9 @@ const schemas = {
     id: Joi.number().integer().required(),
     description: Joi.string(),
   }),
-  
+
   commentSchema: Joi.object({
-    postId: Joi.number().integer().required(),
-    userId: Joi.number().integer().required(),
+    id: Joi.number().integer().required(),
     comment: Joi.string().min(1).required(),
   }),
 };
