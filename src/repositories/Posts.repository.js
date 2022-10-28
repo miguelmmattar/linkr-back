@@ -16,7 +16,7 @@ async function postUrl({ url, description, userId }) {
   return insert.rows[0].id;
 }
 
-const getPosts = (info, type, userId) => {
+const getPosts = (info, type, userId, offset) => {
   let filter = false;
   console.log(userId)
   if (info && type === "user") {
@@ -49,10 +49,9 @@ const getPosts = (info, type, userId) => {
             ON hashtags.id = "postsHashtags"."hashtagId"
         ${filter}
         ORDER BY "createdAt" DESC
-        LIMIT 20;
-    `,
-      [info]
-    );
+        LIMIT 10
+        OFFSET $2;
+    `,[info, offset]);
   }
 
   return connection.query(`
@@ -78,10 +77,10 @@ const getPosts = (info, type, userId) => {
             follows.follower = $1 OR posts."userId" = $1
         GROUP BY posts.id, users.id, "userPicture".id, "postsHashtags"."postId"
         ORDER BY "createdAt" DESC
-        LIMIT 20;
-    `,[userId]);
-    
-};
+        LIMIT 10
+        OFFSET $2;
+    `,[userId, offset]);
+}
 
 function getPostById(id) {
   return connection.query(`SELECT "userId" FROM posts WHERE id=$1;`, [id]);

@@ -128,7 +128,7 @@ const schemas_configuration = Object.freeze([
   },
   {
     path: "/unfollow",
-    method: "DELETE",
+    method: "POST",
     schema_name: "idSchema",
     request_data: "body",
   },

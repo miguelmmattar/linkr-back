@@ -10,7 +10,7 @@ const router = express.Router();
 router.get("/search/:searchString", HTMLSanitizer, authorization, userController.search);
 router.get("/follows", HTMLSanitizer, authorization, userController.getFollows);
 router.post("/follow", schemaValidation, HTMLSanitizer, authorization, userController.newFollow);
-router.delete("/unfollow", schemaValidation, HTMLSanitizer, authorization, userController.unfollow);
+router.post("/unfollow", schemaValidation, HTMLSanitizer, authorization, userController.unfollow);
 
 
 
