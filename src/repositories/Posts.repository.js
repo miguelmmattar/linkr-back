@@ -16,8 +16,7 @@ async function postUrl({ url, description, userId }) {
   return insert.rows[0].id;
 }
 
-const getPosts = async (info, type, userId, offset) => {
-
+const getPosts = (info, type, userId, offset) => {
   let filter = false;
   if (info && type === "user") {
     filter = `WHERE users.id = $1 AND extract(epoch FROM posts."createdAt") < $2`;
@@ -29,7 +28,7 @@ const getPosts = async (info, type, userId, offset) => {
   }
 
   if (filter) {
-    let filteredPosts = await connection.query(
+    return connection.query(
       `
         SELECT 
             posts.id,
@@ -50,14 +49,12 @@ const getPosts = async (info, type, userId, offset) => {
         ${filter}
         ORDER BY "createdAt" DESC
         LIMIT 10;
-        `,[info, offset]);
-    
-    filteredPosts = filteredPosts.rows;
-    return filteredPosts;
-     
+        `,
+      [info, offset]
+    );
   }
 
-  let timelinePosts = await connection.query(
+  return connection.query(
     `
         SELECT
             posts.id,
@@ -82,14 +79,43 @@ const getPosts = async (info, type, userId, offset) => {
         GROUP BY posts.id, users.id, "userPicture".id, "postsHashtags"."postId"
         ORDER BY "createdAt" DESC
         LIMIT 10;
-        `,[userId, offset]);
-    
+        `,
+    [userId, offset]
+  );
+};
 
-  timelinePosts = timelinePosts.rows.map((value) => {
-    return { ...value, isRepost: false };
-  });
+const getReposts = (info, type, userId, offset) => {
+  let filter = false;
 
-  let reposts = await connection.query(
+  if (info && type === "user") {
+    filter = `WHERE (reposts."userId" = $1) AND extract(epoch FROM reposts."createdAt") < $2`;
+    return connection.query(
+      `
+    SELECT     
+    posts.id AS id,
+    reposts.id AS "repostId",
+    reposts."userId" AS "repostUserId",
+    u2.name AS "repostUserName",
+    posts.url AS link,
+    posts.description,
+    json_build_object('id', u1.id,'name', u1.name, 'picture', "userPicture".url) AS user,
+    extract(epoch FROM reposts."createdAt") AS "createdAt"
+       FROM posts
+      	LEFT JOIN reposts ON posts.id = reposts."postId"
+        LEFT JOIN users u1 ON u1.id = posts."userId"
+        LEFT JOIN users u2 ON u2.id = reposts."userId"
+        LEFT JOIN "userPicture" ON posts."userId" = "userPicture"."userId"      
+         LEFT JOIN follows ON reposts."userId" = follows.followed
+        ${filter}
+        GROUP BY reposts.id, posts.id, u2.name, u1.name, u1.id, "userPicture".url
+        ORDER BY "createdAt" DESC
+        LIMIT 10; 
+    `,
+      [userId, offset]
+    );
+  }
+
+  return connection.query(
     `
     SELECT     
     posts.id AS id,
@@ -109,25 +135,11 @@ const getPosts = async (info, type, userId, offset) => {
         WHERE (follows.follower = $1 OR reposts."userId" = $1) AND extract(epoch FROM reposts."createdAt") < $2
         GROUP BY reposts.id, posts.id, u2.name, u1.name, u1.id, "userPicture".url
         ORDER BY "createdAt" DESC
-            LIMIT 10;   
+        LIMIT 10;   
   `,
     [userId, offset]
   );
-
-  reposts = reposts.rows.map((value) => {
-    return { ...value, isRepost: true };
-  });
-  for (let i = 0; i < reposts.length; i++) {
-    timelinePosts.push(reposts[i]);
-  }
-
-  timelinePosts.sort((x, y) => {
-    return y.createdAt - x.createdAt;
-  });
-
-  return timelinePosts;
-}
-   
+};
 
 function getPostById(id) {
   return connection.query(`SELECT "userId" FROM posts WHERE id=$1;`, [id]);
@@ -140,4 +152,4 @@ function updatePost({ description, userId, id }) {
   );
 }
 
-export { postUrl, getPosts, deletePost, getPostById, updatePost };
+export { postUrl, getPosts, getReposts, deletePost, getPostById, updatePost };
