@@ -141,6 +141,12 @@ const getReposts = (info, type, userId, offset) => {
   );
 };
 
+const countReposts = () => {
+  return connection.query(
+    `SELECT "postId", COUNT("postId") FROM reposts GROUP BY "postId"`
+  );
+};
+
 function getPostById(id) {
   return connection.query(`SELECT "userId" FROM posts WHERE id=$1;`, [id]);
 }
@@ -152,4 +158,12 @@ function updatePost({ description, userId, id }) {
   );
 }
 
-export { postUrl, getPosts, getReposts, deletePost, getPostById, updatePost };
+export {
+  postUrl,
+  getPosts,
+  getReposts,
+  countReposts,
+  deletePost,
+  getPostById,
+  updatePost,
+};

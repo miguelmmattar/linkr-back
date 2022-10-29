@@ -72,14 +72,14 @@ const getPosts = async (req, res) => {
     );
 
     resultPosts = resultPosts.rows.map((value) => {
-      return { ...value, isRepost: false };
+      return { ...value, isRepost: false, count: 0 };
     });
 
     resultReposts = resultReposts.rows.map((value) => {
-      return { ...value, isRepost: true };
+      return { ...value, isRepost: true, count: 0 };
     });
 
-    if (type !== "hashtag") {
+    if (type !== "hashtag" && resultReposts.length > 0) {
       for (let i = 0; i < resultReposts.length; i++) {
         resultPosts.push(resultReposts[i]);
       }
@@ -89,9 +89,21 @@ const getPosts = async (req, res) => {
       return y.createdAt - x.createdAt;
     });
 
-    
-
     resultPosts = resultPosts.slice(0, 10);
+
+    let resultCountReposts = await postsRepository.countReposts();
+    resultCountReposts = resultCountReposts.rows;
+
+    for (let i = 0; i < resultCountReposts.length; i++) {
+      for (let j = 0; j < resultPosts.length; j++) {
+        if (resultCountReposts[i].postId === resultPosts[j].id) {
+          resultPosts[j] = {
+            ...resultPosts[j],
+            count: Number(resultCountReposts[i].count),
+          };
+        }
+      }
+    }
 
     resultLikes.rows.forEach((like) => {
       likesHashtable[like.postId] = like.likedBy;
