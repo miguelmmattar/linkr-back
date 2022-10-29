@@ -39,7 +39,7 @@ const postUrl = async (req, res) => {
 const getPosts = async (req, res) => {
   const { userId } = res.locals;
   const offset = req.query.offset;
-  
+
   try {
     let filter;
     let type;
@@ -56,13 +56,59 @@ const getPosts = async (req, res) => {
       filter = req.params.hashtag;
       type = "hashtag";
     }
-    
-    const resultPosts = await postsRepository.getPosts(filter, type, userId, offset);
+
+    let resultPosts = await postsRepository.getPosts(
+      filter,
+      type,
+      userId,
+      offset
+    );
+
+    let resultReposts = await postsRepository.getReposts(
+      filter,
+      type,
+      userId,
+      offset
+    );
+
+    resultPosts = resultPosts.rows.map((value) => {
+      return { ...value, isRepost: false, count: 0 };
+    });
+
+    resultReposts = resultReposts.rows.map((value) => {
+      return { ...value, isRepost: true, count: 0 };
+    });
+
+    if (type !== "hashtag" && resultReposts.length > 0) {
+      for (let i = 0; i < resultReposts.length; i++) {
+        resultPosts.push(resultReposts[i]);
+      }
+    }
+
+    resultPosts.sort((x, y) => {
+      return y.createdAt - x.createdAt;
+    });
+
+    resultPosts = resultPosts.slice(0, 10);
+
+    let resultCountReposts = await postsRepository.countReposts();
+    resultCountReposts = resultCountReposts.rows;
+
+    for (let i = 0; i < resultCountReposts.length; i++) {
+      for (let j = 0; j < resultPosts.length; j++) {
+        if (resultCountReposts[i].postId === resultPosts[j].id) {
+          resultPosts[j] = {
+            ...resultPosts[j],
+            count: Number(resultCountReposts[i].count),
+          };
+        }
+      }
+    }
 
     resultLikes.rows.forEach((like) => {
       likesHashtable[like.postId] = like.likedBy;
     });
-    
+
     const result = resultPosts.map((post) => {
       const postId = post.id;
       return { ...post, likedBy: likesHashtable[postId] };
