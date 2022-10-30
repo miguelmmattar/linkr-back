@@ -5,18 +5,16 @@ const TABLE = "comments";
 function getPostCommentsById(id) {
   return connection.query(
     `
-  SELECT 
-  comments.id,
-  posts.url AS link,
-  posts.description,
-  json_build_object('id', users.id,'name', users.name, 'picture', "userPicture".url) AS user,
-FROM 
-  comments
-LEFT JOIN users
-  ON users.id = comments."userId"
-LEFT JOIN "userPicture"
-  ON users.id = "userPicture"."userId"
-ORDER BY "createdAt" DESC
+    SELECT COMMENTS.COMMENT,
+    USERS.ID AS ID,
+    USERS.NAME AS NAME,
+    "userPicture".URL AS PICTURE,
+    COMMENTS."createdAt"
+  FROM COMMENTS
+  LEFT JOIN USERS ON USERS.ID = COMMENTS."userId"
+  LEFT JOIN "userPicture" ON USERS.ID = "userPicture"."userId"
+  WHERE COMMENTS."postId" = $1
+  ORDER BY COMMENTS."createdAt"
 ;`,
     [id]
   );
