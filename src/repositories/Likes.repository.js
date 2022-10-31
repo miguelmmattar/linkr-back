@@ -10,7 +10,6 @@ function insertLike({ postId, userId }) {
 }
 
 function deleteLike({ postId, userId }) {
-  console.log(postId, userId)
   return connection.query(
     `DELETE FROM ${TABLE} WHERE "postId"=$1 AND "userId"=$2`,
     [postId, userId]

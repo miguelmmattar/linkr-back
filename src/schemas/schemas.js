@@ -40,6 +40,11 @@ const schemas = {
     id: Joi.number().integer().required(),
     description: Joi.string().allow('')
   }),
+
+  commentSchema: Joi.object({
+    id: Joi.number().integer().required(),
+    comment: Joi.string().min(1).required(),
+  }),
 };
 
 export { schemas };

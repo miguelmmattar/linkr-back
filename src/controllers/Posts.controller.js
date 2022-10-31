@@ -5,6 +5,7 @@ import * as likesRepository from "../repositories/Likes.repository.js";
 import urlMetadata from "url-metadata";
 import * as hashtagRepository from "../repositories/Hashtags.repository.js";
 import * as usersRepository from "../repositories/Users.repository.js";
+import { getPostCommentsById } from "../repositories/Comments.repository.js";
 
 const postUrl = async (req, res) => {
   const { url, description } = req.body;
@@ -114,7 +115,8 @@ const getPosts = async (req, res) => {
       return { ...post, likedBy: likesHashtable[postId] };
     });
 
-    const posts = await getMetadatas(result);
+    let posts = await getMetadatas(result);
+    posts = await getComments(posts);
 
     if (type === "user") {
       user = await usersRepository.getUserDataByIds(filter, userId);
@@ -169,6 +171,22 @@ const getMetadatas = async (result) => {
     return console.log(error.message);
   }
 };
+
+async function getComments(posts) {
+  try {
+    const postsWithComments = await Promise.all(
+      posts.map(async (post) => {
+        const comments = await getPostCommentsById(post.id);
+
+        return { ...post, comments: comments.rows };
+      })
+    );
+
+    return postsWithComments;
+  } catch (error) {
+    return console.log(error.message);
+  }
+}
 
 const deletePost = async (request, response) => {
   try {
