@@ -15,6 +15,8 @@ const propertiesToSanitize = [
   "userPicture",
   "searchString",
   "comment",
+  "user",
+  "hashtag"
 ];
 
 function HTMLSanitizer(request, response, next) {

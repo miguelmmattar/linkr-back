@@ -26,5 +26,6 @@ router.put(
   getHashtags,
   postsController.updatePost
 );
+router.get("/numbers", HTMLSanitizer, postsController.getPostNumbers);
 
 export default router;

@@ -158,6 +158,47 @@ function updatePost({ description, userId, id }) {
   );
 }
 
+function getAllPosts(info, type, userId ) {
+  let filter = false;
+  if (info && type === "user") {
+    filter = `WHERE "userId" = $1`
+  }
+  if (info && type === "hashtag") {
+    filter = `
+      LEFT JOIN "postsHashtags"
+          ON "postsHashtags"."postId" = posts.id
+      LEFT JOIN hashtags
+          ON hashtags.id = "postsHashtags"."hashtagId"
+      WHERE hashtags.hashtag = $1
+    `;
+    info = "#" + info;
+  }
+  if (filter) {
+    return connection.query(`
+    SELECT 
+        COUNT(posts.id)
+    FROM 
+        posts
+    ${filter}
+    ;`,
+      [info]
+  );
+  }
+
+  return connection.query(`
+    SELECT COUNT(posts.id)
+    FROM 
+        posts
+    LEFT JOIN follows
+        ON follows.followed = posts."userId"
+    WHERE 
+      follows.follower = $1 OR posts."userId" = $1
+    ;`,
+      [userId]
+  );
+  
+  
+}
 export {
   postUrl,
   getPosts,
@@ -166,4 +207,5 @@ export {
   deletePost,
   getPostById,
   updatePost,
+  getAllPosts
 };
