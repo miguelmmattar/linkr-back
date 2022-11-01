@@ -245,5 +245,6 @@ export {
   deletePost,
   getPostById,
   updatePost,
-  getAllPosts
+  getAllPosts,
+  getAllReposts
 };

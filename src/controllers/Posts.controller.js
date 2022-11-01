@@ -277,7 +277,7 @@ const getPostNumbers = async (req, res) => {
   reposts = await postsRepository.getAllReposts(info, type, userId );
 
 
-  total = Number(posts.rows[0].count);
+  total = Number(posts.rows[0].count) + Number(reposts.rows[0].count);
 
   return res.status(STATUS_CODE.OK).send(total.toString());
 };
