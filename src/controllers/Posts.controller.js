@@ -260,6 +260,7 @@ const getPostNumbers = async (req, res) => {
   let type;
   let info;
   let query = res.locals.query;
+
   if(query) {
     if(query.user) {
       type = "user";
@@ -272,7 +273,10 @@ const getPostNumbers = async (req, res) => {
   }
 
   posts = await postsRepository.getAllPosts(info, type, userId );
-  // reposts = await postsRepository.getAllReposts(info, type, userId );
+  
+  reposts = await postsRepository.getAllReposts(info, type, userId );
+
+
   total = Number(posts.rows[0].count);
 
   return res.status(STATUS_CODE.OK).send(total.toString());
