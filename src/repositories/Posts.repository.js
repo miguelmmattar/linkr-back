@@ -187,7 +187,6 @@ function getAllPosts(info, type, userId) {
     );
   };
 
-
   return connection.query(`
     SELECT COUNT(posts.id)
     FROM 
@@ -245,5 +244,6 @@ export {
   deletePost,
   getPostById,
   updatePost,
-  getAllPosts
+  getAllPosts,
+  getAllReposts
 };
