@@ -111,7 +111,7 @@ const getReposts = (info, type, userId, offset) => {
         ORDER BY "createdAt" DESC
         LIMIT 10; 
     `,
-      [userId, offset]
+      [info, offset]
     );
   }
 
@@ -131,7 +131,7 @@ const getReposts = (info, type, userId, offset) => {
         JOIN users u1 ON u1.id = posts."userId"
         JOIN users u2 ON u2.id = reposts."userId"
         JOIN "userPicture" ON posts."userId" = "userPicture"."userId"      
-         JOIN follows ON reposts."userId" = follows.followed
+        LEFT JOIN follows ON reposts."userId" = follows.followed
         WHERE (follows.follower = $1 OR reposts."userId" = $1) AND extract(epoch FROM reposts."createdAt") < $2
         GROUP BY reposts.id, posts.id, u2.name, u1.name, u1.id, "userPicture".url
         ORDER BY "createdAt" DESC
@@ -158,6 +158,85 @@ function updatePost({ description, userId, id }) {
   );
 }
 
+function getAllPosts(info, type, userId) {
+  let filter = false;
+  if (info && type === "user") {
+    filter = `WHERE "userId" = $1`
+  }
+
+  if (info && type === "hashtag") {
+    filter = `
+      LEFT JOIN "postsHashtags"
+          ON "postsHashtags"."postId" = posts.id
+      LEFT JOIN hashtags
+          ON hashtags.id = "postsHashtags"."hashtagId"
+      WHERE hashtags.hashtag = $1
+    `;
+    info = "#" + info;
+  }
+
+  if (filter) {
+    return connection.query(`
+    SELECT 
+        COUNT(posts.id)
+    FROM 
+        posts
+    ${filter}
+    ;`,
+      [info]
+    );
+  };
+
+
+  return connection.query(`
+    SELECT COUNT(posts.id)
+    FROM 
+        posts
+    LEFT JOIN follows
+        ON follows.followed = posts."userId"
+    WHERE 
+      follows.follower = $1 OR posts."userId" = $1
+    ;`,
+    [userId]
+  )
+};
+
+function getAllReposts(info, type, userId) {
+  let filter = false;
+  if (info && type === "user") {
+    filter = `WHERE (reposts."userId" = $1)`
+  }
+  if(filter) {
+    return connection.query(`
+      SELECT     
+        COUNT(posts.id)
+      FROM posts
+      LEFT JOIN reposts 
+        ON posts.id = reposts."postId"
+      LEFT JOIN users u1 
+        ON u1.id = posts."userId"
+      LEFT JOIN users u2 
+        ON u2.id = reposts."userId"
+      LEFT JOIN "userPicture" 
+        ON posts."userId" = "userPicture"."userId"      
+      LEFT JOIN follows 
+        ON reposts."userId" = follows.followed
+      WHERE reposts."userId" = $1
+    ;`,[info])
+  }
+
+  return connection.query(`
+    SELECT     
+      COUNT(reposts.*)
+    FROM posts
+    JOIN reposts
+      ON posts.id = reposts."postId"   
+    LEFT JOIN follows 
+      ON reposts."userId" = follows.followed
+    WHERE (follows.follower = $1  OR reposts."userId" = $1)
+  ;`,[userId])
+  
+}
 export {
   postUrl,
   getPosts,
@@ -166,4 +245,5 @@ export {
   deletePost,
   getPostById,
   updatePost,
+  getAllPosts
 };

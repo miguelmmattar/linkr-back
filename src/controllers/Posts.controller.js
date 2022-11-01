@@ -252,4 +252,34 @@ const updatePost = async (request, response) => {
   }
 };
 
-export { postUrl, getPosts, deletePost, updatePost };
+const getPostNumbers = async (req, res) => {
+  const userId = res.locals.userId;
+  let posts;
+  let reposts;
+  let total;
+  let type;
+  let info;
+  let query = res.locals.query;
+
+  if(query) {
+    if(query.user) {
+      type = "user";
+      info = query.user;
+    }
+    if(query.hashtag) {
+      type = "hashtag";
+      info = query.hashtag;
+    }
+  }
+
+  posts = await postsRepository.getAllPosts(info, type, userId );
+  
+  reposts = await postsRepository.getAllReposts(info, type, userId );
+
+
+  total = Number(posts.rows[0].count);
+
+  return res.status(STATUS_CODE.OK).send(total.toString());
+};
+
+export { postUrl, getPosts, deletePost, updatePost, getPostNumbers };
