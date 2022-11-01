@@ -187,7 +187,6 @@ function getAllPosts(info, type, userId) {
     );
   };
 
-
   return connection.query(`
     SELECT COUNT(posts.id)
     FROM 

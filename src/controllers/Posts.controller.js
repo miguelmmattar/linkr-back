@@ -273,11 +273,13 @@ const getPostNumbers = async (req, res) => {
   }
 
   posts = await postsRepository.getAllPosts(info, type, userId );
-  
   reposts = await postsRepository.getAllReposts(info, type, userId );
 
-
-  total = Number(posts.rows[0].count) + Number(reposts.rows[0].count);
+  if(!type || type === "user") {
+    total = Number(posts.rows[0].count) + Number(reposts.rows[0].count);
+  } else{
+    total = Number(posts.rows[0].count);
+  }
 
   return res.status(STATUS_CODE.OK).send(total.toString());
 };
